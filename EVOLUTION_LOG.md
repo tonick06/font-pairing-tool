@@ -271,3 +271,18 @@ The repo-structure listing's one-line description of fontpair.py also
 omits the `compare` subcommand added in cycle 8. This is real, checkable
 staleness (not a style nitpick) that would mislead anyone reading the
 README to understand the project's actual current state - fixing it.
+
+---
+
+## Cycle 13: Add test coverage for app.py (currently zero)
+
+Checked tests/: test_cli.py, test_compare_files.py, test_extract_metrics.py,
+test_gallery.py, test_scoring.py exist, but nothing tests app.py at all -
+not the index route, not the /upload route added in cycle 8. That upload
+feature was only ever verified ad-hoc via a throwaway Flask test-client
+script during cycle 8's live session; nothing persisted it, so a future
+cycle could silently break file upload and nothing would catch it. Adding
+tests/test_app.py covering both routes (index with/without a font
+selected, upload success, upload with missing files, upload with a
+disallowed extension) using Flask's test client, the same approach
+already proven out in cycle 8.

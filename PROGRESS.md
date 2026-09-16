@@ -129,6 +129,12 @@ for the latest cycle entries; this file's "Next step" line reflects whatever the
   fix entirely. Also fixed fontpair.py's one-line description in the repo-structure listing to mention
   `compare`. Docs-only change; confirmed no regression (18/18 tests, margin unchanged at 0.212).
 
+- Cycle 13 (see EVOLUTION_LOG.md): added tests/test_app.py (5 tests) covering app.py's Flask routes, which
+  had zero persisted test coverage despite being a full milestone deliverable - the cycle 8 upload feature
+  was only ever verified ad-hoc in a live session, nothing would have caught a regression. Covers index
+  (with/without a font selected) and /upload (success, missing files, disallowed extension). Full suite now
+  23/23 passing. No scoring changes; validation margin unchanged at 0.212.
+
 ## Next step (for a human, or a future loop)
 - `weight_compat` scoring axis is still dead (every font in the DB is Regular/400). Fixing it needs: (1) a
   second weight per family downloaded, (2) a way to disambiguate SQLite rows that share a `family_name`
