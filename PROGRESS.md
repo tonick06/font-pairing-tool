@@ -168,6 +168,15 @@ for the latest cycle entries; this file's "Next step" line reflects whatever the
   on (its wide stroke-contrast spread is expected diversity, not a red flag, since it deliberately mixes
   script/handwriting and geometric display styles). Full suite now 32/32 passing.
 
+- Cycle 18 (see EVOLUTION_LOG.md): recovered 10 of cycle 9's 16 download failures by confirming their real
+  filenames against the google/fonts repo (multi-axis variable naming like `[wdth,wght].ttf` that cycle 9's
+  guesses missed): Noto Sans, Noto Serif, Signika, Saira, Asap, Overpass, Old Standard TT, Shadows Into
+  Light, Fredoka, Nova Mono. Also fixed Fredoka's category (verified via METADATA.pb: sans-serif, not the
+  unused "display" guess baked into cycle 9), and found the Nova Mono font file's own internal name is
+  actually "NovaMono" (no space) - added that exact variant to category_lookup.py. Database grows 136 -> 146
+  fonts, 0 unknown categories. No regression: 32/32 tests pass, validation margin unchanged at 0.212.
+  Regenerated output/gallery.html; updated README's font count.
+
 ## Next step (for a human, or a future loop)
 - `weight_compat` scoring axis is still dead (every font in the DB is Regular/400). Fixing it needs: (1) a
   second weight per family downloaded, (2) a way to disambiguate SQLite rows that share a `family_name`

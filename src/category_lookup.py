@@ -186,7 +186,7 @@ FAMILY_CATEGORY = {
     "Chewy": "display",
     "Concert One": "display",
     "Dancing Script": "display",
-    "Fredoka": "display",
+    "Fredoka": "sans-serif",  # cycle 18: verified via METADATA.pb (SANS_SERIF, not display)
     "Gochi Hand": "display",
     "Great Vibes": "display",
     "Indie Flower": "display",
@@ -208,6 +208,7 @@ FAMILY_CATEGORY = {
     "Cousine": "monospace",
     "Cutive Mono": "monospace",
     "Nova Mono": "monospace",
+    "NovaMono": "monospace",  # cycle 18: font's own name table omits the space
     "Share Tech Mono": "monospace",
     "Ubuntu Mono": "monospace",
     "VT323": "monospace",

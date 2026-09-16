@@ -358,3 +358,20 @@ exercised indirectly through extract_metrics tests. Adding
 tests/test_category_lookup.py: exact match, case-insensitive match,
 unknown-family fallback, and a few known-correct entries (including a
 regression check that the cycle 16 fix stuck).
+
+---
+
+## Cycle 18: Recover 10 of cycle 9's 16 download failures
+
+Cycle 9 left 16 popular fonts unresolved because their real filenames use
+multi-axis variable naming (`[wdth,wght].ttf` etc.) that the original
+candidate list only guessed as `[wght].ttf`. Queried api.github.com's
+folder listing for each failed family to get real filenames (a few came
+back empty, likely api.github.com's rate limit again, not a real absence
+- not chasing those further this cycle). Confirmed 10 fonts have
+resolvable real filenames: Noto Sans, Noto Serif, Signika, Saira, Asap,
+Overpass, Old Standard TT (actual family folder name differs: "Old
+Standard TT" -> family "OldStandard"), Shadows Into Light, Fredoka, Nova
+Mono. Also double-checked Fredoka's real category via METADATA.pb -
+SANS_SERIF, not the "display" guess baked into cycle 9's unused entry -
+fixing that as part of adding it for real this time.
