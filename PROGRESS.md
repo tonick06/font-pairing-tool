@@ -94,6 +94,13 @@ for the latest cycle entries; this file's "Next step" line reflects whatever the
   app (POST /upload, .ttf/.otf only, 10MB cap). Verified via Flask test client (status 200, correct score,
   error paths for missing/wrong-extension files). Full suite: 17/17 passing.
 
+- Cycle 9 (see EVOLUTION_LOG.md), done live at the user's direct request: bulk-added 57 popular Google Fonts
+  (Noto Sans, Quicksand, Caveat, Dancing Script, Cinzel, VT323, Ubuntu Mono, etc.) via
+  src/download_popular_fonts.py, reusing the cycle-1/cycle-7 raw.githubusercontent.com approach. DB grows
+  79 -> 136 fonts; category balance much improved (sans-serif 48, serif 29, display 28, monospace 17,
+  slab-serif 14). No regression: validation margin unchanged (0.205, clean separation), 17/17 tests pass.
+  Regenerated output/gallery.html.
+
 ## Next step (for a human, or a future loop)
 - `weight_compat` scoring axis is still dead (every font in the DB is Regular/400). Fixing it needs: (1) a
   second weight per family downloaded, (2) a way to disambiguate SQLite rows that share a `family_name`

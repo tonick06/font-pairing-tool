@@ -192,3 +192,19 @@ core via a small refactor that extracted `_render_from_metadata`),
 `fontpair.py compare <file_a> <file_b> [--render]`, and a file-upload form
 on the Flask app's homepage (POST /upload, .ttf/.otf only, 10MB cap,
 uploads saved under output/uploads/ which is gitignored).
+
+---
+
+## Cycle 9: Bulk-add popular fonts (user request, done live)
+
+The user directly asked to download a lot more of the most popular fonts.
+Compiled a list of 73 well-known Google Fonts not yet in the database,
+spanning all five categories (Noto Sans, Quicksand, Caveat, Dancing
+Script, Cinzel, VT323, Ubuntu Mono, etc.), and reused the cycle-1/cycle-7
+raw.githubusercontent.com probing approach (no api.github.com listing, so
+no rate-limit risk) via a new src/download_popular_fonts.py. 57 of the 73
+resolved; the other 16 use a folder/filename convention this probing
+approach doesn't happen to hit (not investigated further - a low-value
+chase for marginal fonts). Database grows 79 -> 136 fonts. Category
+balance improved across the board: sans-serif 26->48, serif 20->29,
+display 13->28, monospace 11->17, slab-serif 9->14.

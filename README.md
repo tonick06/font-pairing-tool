@@ -15,10 +15,10 @@ the font files — no external ratings, no ML model, no manual curation.
    information isn't reliably present in the font file itself.
 2. **Database** ([src/build_database.py](src/build_database.py)) runs the extractor across every font in
    `fonts/` and stores the results in a SQLite database at `data/metrics.db`.
-   Currently 79 fonts across all five categories (serif, sans-serif,
+   Currently 136 fonts across all five categories (serif, sans-serif,
    slab-serif, display, monospace) — see [src/download_fonts.py](src/download_fonts.py),
-   [src/download_monospace.py](src/download_monospace.py), and [src/download_more_categories.py](src/download_more_categories.py)
-   for how they were fetched from Google Fonts.
+   [src/download_monospace.py](src/download_monospace.py), [src/download_more_categories.py](src/download_more_categories.py),
+   and [src/download_popular_fonts.py](src/download_popular_fonts.py) for how they were fetched from Google Fonts.
 3. **Scoring** ([src/scoring.py](src/scoring.py)) combines four normalized axes — x-height
    compatibility, category contrast, weight compatibility, and stroke-contrast
    similarity — into a transparent weighted sum. Every score is traceable back
