@@ -18,13 +18,20 @@
   on that axis identically) - it doesn't hurt the margin since it's constant, but it isn't pulling its weight
   either. Fixed once bold weights are added to the database.
 
-## In progress
-- Milestones 4-6 (recommend.py, render.py, app.py) are written but not yet run end-to-end against the real DB.
+- Milestone 4 (recommendation API): `recommend_pairings` / `score_pairing` in [src/recommend.py](src/recommend.py).
+  Spot-checked Playfair Display -> top 5 are all sans-serifs with closely matched x-height; plausible to a human eye.
+- Milestone 5 (visual output): [src/render.py](src/render.py) renders heading+body PNG samples with score/explanation.
+  Generated a demo batch in `output/` for Playfair Display, Oswald, and Merriweather's top 3 pairings.
+- Milestone 6 (web UI, stretch): [app.py](app.py) is a minimal Flask app - dropdown of every font in the DB,
+  shows top-5 pairing images inline. Smoke-tested in a real browser (localhost:5000): dropdown populates,
+  selecting "Playfair Display" renders 5 pairing cards, all 5 pairing images return 200 OK over the network.
+  All 6 base milestones are now complete and committed.
 
 ## Next step
-- Run recommend.py and render.py against real data, commit Milestones 4-5.
-- Smoke-test app.py, commit Milestone 6.
-- Then start the 5-cycle self-evolution loop (assess -> propose in EVOLUTION_LOG.md -> implement -> validate ->
+- Start the 5-cycle self-evolution loop (assess -> propose in EVOLUTION_LOG.md -> implement -> validate ->
   commit -> update this file). Do not change the core weighted-sum scoring philosophy without asking first.
-  Known gaps for the loop: no monospace fonts in the DB; weight_compat axis needs bold-weight data to be useful;
-  validation set is small (15 pairings) and could be expanded for a more robust weight search.
+  Known gaps for the loop to consider: no monospace fonts in the DB (download_fonts.py needs a GITHUB_TOKEN to
+  get past the 60 req/hr unauthenticated rate limit, or a resumable re-run); weight_compat axis is currently
+  uninformative since every downloaded font is Regular/400 (no bold weights in the DB yet); validation set is
+  small (15 pairings, 13 matched fonts) and could be expanded for a more robust weight search; category_contrast
+  matrix and category_lookup.py table are hand-curated and could use a second pass for edge cases.
