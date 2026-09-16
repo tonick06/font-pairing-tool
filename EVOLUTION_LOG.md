@@ -133,3 +133,21 @@ No cycle proposed replacing it, so the guardrail was never tested in
 anger, but it held as intended: every change was proposed here before
 being made, validated against real data afterward, and committed with a
 message pointing back to this log.
+
+---
+
+The user asked the loop to keep running past the original 5-cycle plan.
+Continuing under the same rules (propose here first, validate against
+real data, commit with a message pointing back to this log, never touch
+the core weighted-sum philosophy without asking).
+
+## Cycle 6: Static HTML pairing gallery
+
+Milestone 6's Flask app requires a running server, and the Milestone 5
+renderer only produces individual PNGs one pairing at a time — there's no
+single shareable artifact that shows off what the tool can do. Building a
+static, self-contained HTML gallery (`output/gallery.html`) that renders
+the best-scoring pairing for a representative font from each category,
+embedding the actual rendered sample images, with a bit of real design
+polish. No server required to view it; it's a better "here's what this
+tool produces" artifact than either the CLI output or the Flask app alone.

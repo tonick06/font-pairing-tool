@@ -61,6 +61,19 @@
 The scheduled 5-cycle self-evolution loop is now complete. See EVOLUTION_LOG.md's "Final report" section
 for the full summary of what each cycle did and what's still open.
 
+## Evolution loop, continued past the original 5 cycles
+The user asked the loop to keep running (and later, to keep it running for 5+ hours). Continuing under the
+same rules from EVOLUTION_LOG.md's guardrail: propose there first, validate against real data, commit with
+a message pointing back to it, never touch the core weighted-sum scoring philosophy without asking first.
+An hourly scheduled task (`font-pairing-evolution-loop`, see scheduled tasks) now runs this loop
+automatically with a hard stop time so it doesn't run unbounded — check EVOLUTION_LOG.md for the latest
+cycle entries; this file's "Next step" line reflects whatever the most recent cycle left off at.
+
+- Cycle 6 (see EVOLUTION_LOG.md): built `src/generate_gallery.py`, a static self-contained HTML gallery
+  (`output/gallery.html`, ~700KB with base64-embedded images) showing the best pairings for one
+  representative font per category. No server required — verified visually in a real browser via a
+  throwaway `python -m http.server` preview. Added tests/test_gallery.py. Full suite: 14/14 passing.
+
 ## Next step (for a human, or a future loop)
 - `weight_compat` scoring axis is still dead (every font in the DB is Regular/400). Fixing it needs: (1) a
   second weight per family downloaded, (2) a way to disambiguate SQLite rows that share a `family_name`
