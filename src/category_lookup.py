@@ -104,6 +104,9 @@ FAMILY_CATEGORY = {
     "Courier Prime": "monospace",
     "PT Mono": "monospace",
     "Noto Sans Mono": "monospace",
+    "DM Mono": "monospace",
+    "Major Mono Display": "monospace",
+    "Overpass Mono": "monospace",
 
     # Common system fonts, useful for local validation/spot-checks even though
     # they aren't part of the Google Fonts download set.

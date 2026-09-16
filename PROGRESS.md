@@ -27,8 +27,15 @@
   selecting "Playfair Display" renders 5 pairing cards, all 5 pairing images return 200 OK over the network.
   All 6 base milestones are now complete and committed.
 
+## Evolution loop
+- Cycle 1 (see EVOLUTION_LOG.md): filled the monospace category gap. Downloaded 11/12 target monospace
+  families (PT Mono's expected filenames all 404'd) directly from raw.githubusercontent.com, bypassing the
+  api.github.com rate limit that stalled the original download. DB now has 69 fonts across all 5 categories
+  (serif, sans-serif, slab-serif, display, monospace). No regression: validation margin unchanged (0.213,
+  clean separation), 8/8 tests still pass. Spot-checked JetBrains Mono -> plausible sans-serif pairings.
+
 ## Next step
-- Start the 5-cycle self-evolution loop (assess -> propose in EVOLUTION_LOG.md -> implement -> validate ->
+- Continue the self-evolution loop (cycle 2 of 5) (assess -> propose in EVOLUTION_LOG.md -> implement -> validate ->
   commit -> update this file). Do not change the core weighted-sum scoring philosophy without asking first.
   Known gaps for the loop to consider: no monospace fonts in the DB (download_fonts.py needs a GITHUB_TOKEN to
   get past the 60 req/hr unauthenticated rate limit, or a resumable re-run); weight_compat axis is currently
