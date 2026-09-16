@@ -1,0 +1,22 @@
+{
+  "good_pairings": [
+    ["Playfair Display", "Source Sans 3"],
+    ["Montserrat", "Merriweather"],
+    ["Oswald", "Lora"],
+    ["Roboto Slab", "Open Sans"],
+    ["Abril Fatface", "Poppins"],
+    ["Libre Baskerville", "Montserrat"],
+    ["Bebas Neue", "Work Sans"],
+    ["Playfair Display", "Karla"]
+  ],
+  "bad_pairings": [
+    ["Playfair Display", "Merriweather"],
+    ["Lora", "Crimson Text"],
+    ["Roboto", "Open Sans"],
+    ["Montserrat", "Poppins"],
+    ["Oswald", "Bebas Neue"],
+    ["Anton", "Bungee"],
+    ["EB Garamond", "Cormorant Garamond"],
+    ["Nunito", "Rubik"]
+  ]
+}
