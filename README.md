@@ -85,6 +85,31 @@ A full multi-page site, not just a single form:
 
 Templates live in `templates/`, shared styling in `static/style.css`.
 
+## Deploying
+
+A pre-built snapshot of `fonts/` and `data/metrics.db` is committed to this repo specifically for
+deployment (they're normally gitignored for local dev, so a fresh clone doesn't accidentally commit a
+re-download — see the comment in `.gitignore`). That means a host can just `pip install` and run; no
+download step needed at deploy time, which sidesteps GitHub's API rate limits that this project has hit
+more than once when fetching fonts fresh (see `EVOLUTION_LOG.md`).
+
+**Render** (recommended, has a free tier): this repo includes `render.yaml`, so Render can deploy it as
+a one-click Blueprint:
+1. Push this repo to GitHub (already done if you're reading this from there).
+2. Go to [dashboard.render.com](https://dashboard.render.com), sign in with GitHub.
+3. **New** → **Blueprint**, pick this repo. Render reads `render.yaml` and provisions everything
+   (`gunicorn app:app` bound to Render's `$PORT`) automatically.
+
+**Any other Python host:** install `requirements.txt` and run `gunicorn app:app --bind 0.0.0.0:$PORT`
+(or just `python app.py` for a quick non-production test).
+
+**Important caveat:** the Compare page's "upload a font" feature writes new files into `fonts/` and new
+rows into `data/metrics.db` at runtime (see `persist_uploaded_font` in `src/compare_files.py`). On a free
+host with an ephemeral filesystem (Render's free tier included), those writes do **not** survive a
+redeploy or a restart — the live site resets back to whatever's committed in git. For uploads to persist
+permanently in production, either upgrade to a plan with a persistent disk mounted at the project root,
+or swap the SQLite file for a real hosted database.
+
 ## Scoring axes
 
 | Axis | Weight | What it measures |

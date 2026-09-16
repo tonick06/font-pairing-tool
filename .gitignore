@@ -1,3 +1,8 @@
+# fonts/*.ttf, fonts/*.otf, and data/metrics.db are gitignored by default so
+# a fresh local dev checkout doesn't accidentally commit re-downloads, but a
+# built snapshot IS force-added and committed (git add -f) for deployment -
+# see README's "Deploying" section. Don't `git rm` them without re-reading
+# that section first.
 fonts/*.ttf
 fonts/*.otf
 data/*.db

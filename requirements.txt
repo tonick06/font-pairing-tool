@@ -2,3 +2,4 @@ fonttools>=4.60
 Pillow>=12.0
 requests>=2.32
 Flask>=3.0
+gunicorn>=23.0
