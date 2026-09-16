@@ -375,3 +375,25 @@ Standard TT" -> family "OldStandard"), Shadows Into Light, Fredoka, Nova
 Mono. Also double-checked Fredoka's real category via METADATA.pb -
 SANS_SERIF, not the "display" guess baked into cycle 9's unused entry -
 fixing that as part of adding it for real this time.
+
+Also found that Nova Mono's own font file stores its family name as
+"NovaMono" (no space) internally, distinct from its Google Fonts display
+name - meaning `fontpair.py recommend "Nova Mono"` (with the space) would
+fail to find it, since the database's family_name column reflects what's
+embedded in the file. Not fixing this discoverability gap now (would need
+a family-name normalization layer touching every lookup site) - flagging
+it in PROGRESS.md for a future cycle instead.
+
+---
+
+## Cycle 19: Extend validation to the 10 fonts added in cycle 18
+
+Same pattern as cycle 11: the database just grew again (136->146 via
+cycle 18) and none of those 10 new fonts had ever been exercised by
+validation. Pre-scored every candidate pairing before adding it this
+time (a lesson from cycle 11's "VT323 + Merriweather" mistake) to avoid
+picking a weak example: 4 new good pairings (Noto Serif+Noto Sans 0.743,
+Asap+Noto Serif 0.727, Overpass+Old Standard TT 0.630, Shadows Into
+Light+Signika 0.581) and 3 new bad pairings (Noto Sans+Overpass 0.459,
+Saira+Asap 0.479, Signika+Fredoka 0.457) - all comfortably clear of the
+existing good_min (0.495) and bad_max (0.489) before being added.

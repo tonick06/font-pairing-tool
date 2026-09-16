@@ -25,7 +25,11 @@
     ["Sanchez", "Mulish"],
     ["Podkova", "Heebo"],
     ["Caveat", "Josefin Sans"],
-    ["Prata", "Quicksand"]
+    ["Prata", "Quicksand"],
+    ["Noto Serif", "Noto Sans"],
+    ["Asap", "Noto Serif"],
+    ["Overpass", "Old Standard TT"],
+    ["Shadows Into Light", "Signika"]
   ],
   "bad_pairings": [
     ["Playfair Display", "Merriweather"],
@@ -51,6 +55,9 @@
     ["VT323", "Share Tech Mono"],
     ["Bree Serif", "Sanchez"],
     ["Quicksand", "Mulish"],
-    ["Caveat", "Sacramento"]
+    ["Caveat", "Sacramento"],
+    ["Noto Sans", "Overpass"],
+    ["Saira", "Asap"],
+    ["Signika", "Fredoka"]
   ]
 }

@@ -177,7 +177,17 @@ for the latest cycle entries; this file's "Next step" line reflects whatever the
   fonts, 0 unknown categories. No regression: 32/32 tests pass, validation margin unchanged at 0.212.
   Regenerated output/gallery.html; updated README's font count.
 
+- Cycle 19 (see EVOLUTION_LOG.md): extended known_pairings.json from 44 to 51 pairings using the 10 fonts
+  added in cycle 18 (Noto Sans, Noto Serif, Signika, Saira, Asap, Overpass, Old Standard TT, Shadows Into
+  Light, Fredoka). Pre-scored every candidate before adding it this time (lesson from cycle 11's mistake) -
+  no weak picks needed swapping out. Clean separation maintained, margin unchanged at 0.212. 32/32 tests
+  pass.
+
 ## Next step (for a human, or a future loop)
+- Nova Mono's font file stores its internal family name as "NovaMono" (no space), different from its
+  Google Fonts display name - `fontpair.py recommend "Nova Mono"` (with the space) fails to find it. A real
+  discoverability gap (found in cycle 18) that needs a family-name normalization/alias layer touching every
+  lookup site (recommend.py, render.py, app.py, fontpair.py) to fix properly - bigger than one cycle.
 - `weight_compat` scoring axis is still dead (every font in the DB is Regular/400). Fixing it needs: (1) a
   second weight per family downloaded, (2) a way to disambiguate SQLite rows that share a `family_name`
   across recommend.py/render.py/app.py's queries (currently all assume one row per family). Flagged and
