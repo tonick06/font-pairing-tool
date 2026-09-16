@@ -208,3 +208,21 @@ approach doesn't happen to hit (not investigated further - a low-value
 chase for marginal fonts). Database grows 79 -> 136 fonts. Category
 balance improved across the board: sans-serif 26->48, serif 20->29,
 display 13->28, monospace 11->17, slab-serif 9->14.
+
+---
+
+## Cycle 10: Fix a real x-height extraction bug found via data audit
+
+Ran a data-integrity check across all 136 fonts after the cycle 9 bulk
+import (weight_class/stroke_contrast/x_height_ratio range checks,
+duplicate family_name check) and found one genuine anomaly: Rosarivo's
+x_height_ratio is 0.17, versus every other font's 0.38-0.55. Traced it to
+Rosarivo's own OS/2.sxHeight field, which the file itself sets to 170 -
+but the actual 'x' glyph outline's bounding box measures 509 (ratio
+0.509, right in the normal range). extract_metrics.py currently trusts
+OS/2 sxHeight/sCapHeight unconditionally whenever present, per the
+original Milestone 1 spec, with glyph-bbox fallback only when the OS/2
+value is missing (0) - it never sanity-checks a present-but-wrong value.
+This is a real, evidenced bug (not a speculative one), so fixing it:
+add a plausible-range check and fall back to glyph bbox measurement when
+the OS/2-derived value is implausible, not just when it's absent.

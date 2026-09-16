@@ -101,6 +101,18 @@ for the latest cycle entries; this file's "Next step" line reflects whatever the
   slab-serif 14). No regression: validation margin unchanged (0.205, clean separation), 17/17 tests pass.
   Regenerated output/gallery.html.
 
+- Cycle 10 (see EVOLUTION_LOG.md): ran a data-integrity audit across all 136 fonts (weight_class,
+  stroke_contrast range, x_height_ratio range, duplicate family_name checks) and found a real bug:
+  Rosarivo.ttf's own OS/2.sxHeight field is wrong (170/1000, ratio 0.17) vs its actual glyph outline
+  (~509/1000, ratio ~0.51) - confirmed by direct bbox measurement. extract_metrics.py trusted any
+  present OS/2 value unconditionally; now it falls back to glyph-bbox measurement when the OS/2-derived
+  ratio is outside a plausible typographic range (x-height 0.25-0.7, cap-height 0.5-0.9), not just when
+  the value is missing. Spot-checked 3 fonts that also cross the 0.7 x-height threshold (Anton, Bangers,
+  Monoton) - their OS/2 values match direct glyph measurement almost exactly, confirming they're
+  legitimately tall-x-height display faces, not bugs; the range check harmlessly re-derives the same
+  value for them. Added a regression test (skipped if fonts/ isn't populated). No regression: validation
+  margin unchanged (0.205, clean separation), 18/18 tests pass. Regenerated output/gallery.html.
+
 ## Next step (for a human, or a future loop)
 - `weight_compat` scoring axis is still dead (every font in the DB is Regular/400). Fixing it needs: (1) a
   second weight per family downloaded, (2) a way to disambiguate SQLite rows that share a `family_name`

@@ -155,10 +155,19 @@ def extract_metrics(font_path: str) -> FontMetrics:
     x_height = getattr(os2, "sxHeight", 0) if os2 else 0
     cap_height = getattr(os2, "sCapHeight", 0) if os2 else 0
 
-    if not x_height:
+    # OS/2 sxHeight/sCapHeight are sometimes present but wrong (bad metadata
+    # from the font's own authoring tool, not a parsing issue on our end -
+    # e.g. Rosarivo.ttf ships sxHeight=170/1000 when its 'x' glyph outline
+    # actually measures ~509/1000). Re-measure from the glyph outline
+    # whenever the OS/2 value is missing OR outside a plausible typographic
+    # range, rather than trusting a present-but-wrong value.
+    x_height_ratio_prelim = (x_height / units_per_em) if x_height else 0
+    if not (0.25 <= x_height_ratio_prelim <= 0.7):
         bbox = _glyph_bbox(ttfont, "x")
         x_height = bbox[3] if bbox else units_per_em * 0.5
-    if not cap_height:
+
+    cap_height_ratio_prelim = (cap_height / units_per_em) if cap_height else 0
+    if not (0.5 <= cap_height_ratio_prelim <= 0.9):
         bbox = _glyph_bbox(ttfont, "H")
         cap_height = bbox[3] if bbox else units_per_em * 0.7
 
