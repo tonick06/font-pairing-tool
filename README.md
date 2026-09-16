@@ -52,7 +52,12 @@ python fontpair.py recommend "Playfair Display" --top 5
 python fontpair.py score "Playfair Display" "Source Sans 3"
 python fontpair.py render "Playfair Display" "Source Sans 3" --out output/
 python fontpair.py list --category serif
+python fontpair.py compare path/to/fontA.ttf path/to/fontB.ttf --render
 ```
+
+`compare` works on any two font files, not just ones in the database — no need to download or catalog a
+font first to see how it pairs with something else. The Flask app (`python app.py`) also has an upload form
+on its homepage for the same thing: pick two `.ttf`/`.otf` files and get the score and a rendered sample.
 
 Or call the underlying modules directly:
 

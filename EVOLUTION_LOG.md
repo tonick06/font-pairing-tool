@@ -175,3 +175,20 @@ toward the two dominant categories. Downloading 5 more slab-serif and
 5 more display families (using the cycle-1 raw.githubusercontent.com
 approach, avoiding the api.github.com rate limit) to bring both categories
 closer to parity with the rest of the database.
+
+---
+
+## Cycle 8: Score-any-two-fonts feature (user request, done live)
+
+The user directly asked for a feature to import/upload two arbitrary font
+files and get a pairing result, not just fonts already in the database.
+This is a real, valuable capability gap: every existing entry point
+(recommend.py, render.py, fontpair.py, app.py) assumed both fonts were
+pre-loaded rows. But extract_metrics.py and scoring.py already work on any
+font file path with no database dependency, so this only needed a thin
+new layer, not a redesign. Adding: src/compare_files.py (score_font_files,
+no DB required), render.render_font_files (reusing the existing render
+core via a small refactor that extracted `_render_from_metadata`),
+`fontpair.py compare <file_a> <file_b> [--render]`, and a file-upload form
+on the Flask app's homepage (POST /upload, .ttf/.otf only, 10MB cap,
+uploads saved under output/uploads/ which is gitignored).

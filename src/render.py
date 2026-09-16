@@ -59,17 +59,10 @@ def _wrap_text(draw, text, font, max_width):
     return lines
 
 
-def render_pairing(font_a_name: str, font_b_name: str, out_dir: str = OUTPUT_DIR, db_path=None):
-    kwargs = {"db_path": db_path} if db_path else {}
-    font_a = get_font(font_a_name, **kwargs) if db_path else get_font(font_a_name)
-    font_b = get_font(font_b_name, **kwargs) if db_path else get_font(font_b_name)
-    if not font_a:
-        raise ValueError(f"Font '{font_a_name}' not found in database")
-    if not font_b:
-        raise ValueError(f"Font '{font_b_name}' not found in database")
-
-    score_info = score_pairing(font_a_name, font_b_name, **(kwargs if db_path else {}))
-
+def _render_from_metadata(font_a: dict, font_b: dict, score_info: dict, out_path: str) -> str:
+    """Shared rendering core: font_a/font_b need 'filepath' and 'family_name';
+    score_info needs 'score' and 'explanation'. Used by both the
+    database-backed render_pairing and the file-based render_font_files."""
     heading_font = _load_font(font_a["filepath"], font_a["family_name"], HEADING_SIZE)
     subheading_font = _load_font(font_a["filepath"], font_a["family_name"], SUBHEADING_SIZE)
     body_font = _load_font(font_b["filepath"], font_b["family_name"], BODY_SIZE)
@@ -118,12 +111,48 @@ def render_pairing(font_a_name: str, font_b_name: str, out_dir: str = OUTPUT_DIR
         draw.text((MARGIN, y), line, font=meta_font, fill=META_COLOR)
         y += meta_line_h
 
-    os.makedirs(out_dir, exist_ok=True)
+    os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
+    img.save(out_path)
+    return out_path
+
+
+def render_pairing(font_a_name: str, font_b_name: str, out_dir: str = OUTPUT_DIR, db_path=None):
+    kwargs = {"db_path": db_path} if db_path else {}
+    font_a = get_font(font_a_name, **kwargs) if db_path else get_font(font_a_name)
+    font_b = get_font(font_b_name, **kwargs) if db_path else get_font(font_b_name)
+    if not font_a:
+        raise ValueError(f"Font '{font_a_name}' not found in database")
+    if not font_b:
+        raise ValueError(f"Font '{font_b_name}' not found in database")
+
+    score_info = score_pairing(font_a_name, font_b_name, **(kwargs if db_path else {}))
+
     safe_a = re.sub(r"[^a-zA-Z0-9]+", "", font_a_name).lower()
     safe_b = re.sub(r"[^a-zA-Z0-9]+", "", font_b_name).lower()
     out_path = os.path.join(out_dir, f"pairing_{safe_a}_{safe_b}.png")
-    img.save(out_path)
-    return out_path
+    return _render_from_metadata(font_a, font_b, score_info, out_path)
+
+
+def render_font_files(path_a: str, path_b: str, out_dir: str = OUTPUT_DIR, out_path: str = None) -> dict:
+    """Score and render a pairing directly from two font files, with no
+    requirement that either be in the database. Returns a dict with the
+    rendered image path plus the same score/axes/explanation shape as
+    recommend.score_pairing."""
+    from compare_files import score_font_files
+
+    result = score_font_files(path_a, path_b)
+    font_a = {"filepath": path_a, "family_name": result["font_a"]}
+    font_b = {"filepath": path_b, "family_name": result["font_b"]}
+
+    if out_path is None:
+        safe_a = re.sub(r"[^a-zA-Z0-9]+", "", result["font_a"]).lower()
+        safe_b = re.sub(r"[^a-zA-Z0-9]+", "", result["font_b"]).lower()
+        os.makedirs(out_dir, exist_ok=True)
+        out_path = os.path.join(out_dir, f"compare_{safe_a}_{safe_b}.png")
+
+    image_path = _render_from_metadata(font_a, font_b, result, out_path)
+    result["image_path"] = image_path
+    return result
 
 
 def render_top_pairings_for(font_name: str, top_n: int = 5, out_dir: str = OUTPUT_DIR):

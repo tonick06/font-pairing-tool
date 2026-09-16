@@ -65,9 +65,11 @@ for the full summary of what each cycle did and what's still open.
 The user asked the loop to keep running (and later, to keep it running for 5+ hours). Continuing under the
 same rules from EVOLUTION_LOG.md's guardrail: propose there first, validate against real data, commit with
 a message pointing back to it, never touch the core weighted-sum scoring philosophy without asking first.
-An hourly scheduled task (`font-pairing-evolution-loop`, see scheduled tasks) now runs this loop
-automatically with a hard stop time so it doesn't run unbounded — check EVOLUTION_LOG.md for the latest
-cycle entries; this file's "Next step" line reflects whatever the most recent cycle left off at.
+The mcp__scheduled-tasks mechanism was tried and abandoned (spawned sessions froze after 2 tool calls, see
+below); the loop now runs via a CronCreate recurring job (id e9d79e85, fires ~every 15 min, independent per
+fire so a usage-limit failure on one doesn't break the chain) with a hard stop time (2026-09-16T11:00+01:00,
+extended once from an original 09:00 at the user's request) so it doesn't run unbounded. Check EVOLUTION_LOG.md
+for the latest cycle entries; this file's "Next step" line reflects whatever the most recent cycle left off at.
 
 - Cycle 6 (see EVOLUTION_LOG.md): built `src/generate_gallery.py`, a static self-contained HTML gallery
   (`output/gallery.html`, ~700KB with base64-embedded images) showing the best pairings for one
@@ -85,6 +87,12 @@ cycle entries; this file's "Next step" line reflects whatever the most recent cy
   approach. DB grew 69 -> 79 fonts; slab-serif 5->9, display 7->13. No regression: validation margin
   unchanged (0.205, clean separation), 14/14 tests pass. Regenerated output/gallery.html and updated README's
   font count.
+
+- Cycle 8 (see EVOLUTION_LOG.md), done live at the user's direct request: added the ability to score two
+  arbitrary font files with no database entry required. New: src/compare_files.py (score_font_files),
+  render.render_font_files, `fontpair.py compare <a> <b> [--render]`, and a file-upload form on the Flask
+  app (POST /upload, .ttf/.otf only, 10MB cap). Verified via Flask test client (status 200, correct score,
+  error paths for missing/wrong-extension files). Full suite: 17/17 passing.
 
 ## Next step (for a human, or a future loop)
 - `weight_compat` scoring axis is still dead (every font in the DB is Regular/400). Fixing it needs: (1) a

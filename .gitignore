@@ -2,6 +2,7 @@ fonts/*.ttf
 fonts/*.otf
 data/*.db
 output/*.png
+output/uploads/
 __pycache__/
 *.pyc
 
