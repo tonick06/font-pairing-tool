@@ -1,7 +1,7 @@
-"""Milestone 6 (stretch): minimal web UI.
-
-Pick a font from a dropdown, see its top pairing recommendations rendered
-inline as sample images.
+"""Milestone 6 web UI, expanded into a full multi-page site: home,
+recommend (pick a font, see top pairings), compare (upload two font
+files, no database entry required), browse (filter the whole database),
+and about (scoring methodology + validation numbers).
 
 Run with:
     python app.py
@@ -12,12 +12,14 @@ import os
 import sys
 import uuid
 
-from flask import Flask, render_template_string, request, send_from_directory
+from flask import Flask, render_template, request, send_from_directory
 from werkzeug.utils import secure_filename
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))
 from recommend import recommend_pairings, _connect, DB_PATH
 from render import render_pairing, render_font_files, OUTPUT_DIR
+from scoring import WEIGHTS
+from validate import run_validation
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10MB, plenty for two font files
@@ -25,66 +27,12 @@ app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10MB, plenty for two font
 UPLOAD_DIR = os.path.join(OUTPUT_DIR, "uploads")
 ALLOWED_EXTENSIONS = {".ttf", ".otf"}
 
-PAGE = """
-<!doctype html>
-<html>
-<head>
-  <title>Font Pairing Tool</title>
-  <style>
-    html { background: #fff; color-scheme: light; }
-    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; color: #222; background: #fff; }
-    h1 { font-size: 22px; }
-    form { margin-bottom: 30px; }
-    select, button { font-size: 15px; padding: 6px 10px; }
-    .pairing { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
-    .pairing img { max-width: 100%; border-radius: 4px; }
-    .score { color: #666; font-size: 14px; margin-top: 8px; }
-  </style>
-</head>
-<body>
-  <h1>Font Pairing Tool</h1>
-  <form method="get">
-    <label for="font">Choose a font:</label>
-    <select name="font" id="font">
-      {% for f in fonts %}
-        <option value="{{ f }}" {% if f == selected %}selected{% endif %}>{{ f }}</option>
-      {% endfor %}
-    </select>
-    <button type="submit">Show pairings</button>
-  </form>
-
-  {% if selected %}
-    <h2>Top pairings for {{ selected }}</h2>
-    {% for r in results %}
-      <div class="pairing">
-        <img src="/output/{{ r.image }}">
-        <div class="score">Score: {{ "%.2f"|format(r.score) }} — {{ r.explanation }}</div>
-      </div>
-    {% endfor %}
-  {% endif %}
-
-  <hr style="margin: 40px 0; border: none; border-top: 1px solid #ddd;">
-
-  <h1>Or upload your own two fonts</h1>
-  <form method="post" action="/upload" enctype="multipart/form-data">
-    <p><label>Font A (heading): <input type="file" name="font_a" accept=".ttf,.otf" required></label></p>
-    <p><label>Font B (body): <input type="file" name="font_b" accept=".ttf,.otf" required></label></p>
-    <button type="submit">Score this pairing</button>
-  </form>
-
-  {% if upload_error %}
-    <p style="color: #b00020;">{{ upload_error }}</p>
-  {% endif %}
-
-  {% if upload_result %}
-    <div class="pairing">
-      <img src="/output/uploads/{{ upload_result.image }}">
-      <div class="score">Score: {{ "%.2f"|format(upload_result.score) }} — {{ upload_result.explanation }}</div>
-    </div>
-  {% endif %}
-</body>
-</html>
-"""
+AXIS_DESCRIPTIONS = {
+    "x_height_compat": "Closer x-height ratios pair better for mixed body text at similar sizes",
+    "category_contrast": "Serif+sans (etc.) reads as intentional hierarchy; same-category pairings score lower",
+    "weight_compat": "Peaks at a moderate weight gap - enough for hierarchy, not so much it looks accidental",
+    "stroke_contrast_similarity": "Two faces with similar stroke-contrast character tend to look coherent together",
+}
 
 
 def all_font_names():
@@ -101,6 +49,19 @@ def _allowed_font_file(filename: str) -> bool:
 
 @app.route("/")
 def index():
+    conn = _connect(DB_PATH)
+    total_fonts = conn.execute("SELECT COUNT(*) FROM fonts").fetchone()[0]
+    category_counts = conn.execute(
+        "SELECT category, COUNT(*) FROM fonts GROUP BY category ORDER BY COUNT(*) DESC"
+    ).fetchall()
+    conn.close()
+    return render_template(
+        "index.html", active="home", total_fonts=total_fonts, category_counts=category_counts
+    )
+
+
+@app.route("/recommend")
+def recommend_page():
     fonts = all_font_names()
     selected = request.args.get("font")
     results = []
@@ -110,16 +71,23 @@ def index():
             image_path = render_pairing(selected, r["family_name"], out_dir=OUTPUT_DIR)
             results.append({
                 "family_name": r["family_name"],
+                "category": r["category"],
                 "score": r["score"],
                 "explanation": r["explanation"],
                 "image": os.path.basename(image_path),
             })
-    return render_template_string(PAGE, fonts=fonts, selected=selected, results=results)
+    return render_template(
+        "recommend.html", active="recommend", fonts=fonts, selected=selected, results=results
+    )
+
+
+@app.route("/compare")
+def compare_page():
+    return render_template("compare.html", active="compare")
 
 
 @app.route("/upload", methods=["POST"])
 def upload():
-    fonts = all_font_names()
     file_a = request.files.get("font_a")
     file_b = request.files.get("font_b")
 
@@ -130,7 +98,7 @@ def upload():
         error = "Only .ttf and .otf files are accepted."
 
     if error:
-        return render_template_string(PAGE, fonts=fonts, selected=None, results=[], upload_error=error)
+        return render_template("compare.html", active="compare", upload_error=error)
 
     os.makedirs(UPLOAD_DIR, exist_ok=True)
     token = uuid.uuid4().hex[:8]
@@ -144,9 +112,8 @@ def upload():
     try:
         result = render_font_files(path_a, path_b, out_dir=UPLOAD_DIR)
     except Exception as e:
-        return render_template_string(
-            PAGE, fonts=fonts, selected=None, results=[],
-            upload_error=f"Could not score these fonts: {e}",
+        return render_template(
+            "compare.html", active="compare", upload_error=f"Could not score these fonts: {e}"
         )
 
     upload_result = {
@@ -154,7 +121,42 @@ def upload():
         "explanation": result["explanation"],
         "image": os.path.basename(result["image_path"]),
     }
-    return render_template_string(PAGE, fonts=fonts, selected=None, results=[], upload_result=upload_result)
+    return render_template("compare.html", active="compare", upload_result=upload_result)
+
+
+@app.route("/browse")
+def browse_page():
+    conn = _connect(DB_PATH)
+    categories = [r[0] for r in conn.execute(
+        "SELECT DISTINCT category FROM fonts ORDER BY category"
+    ).fetchall()]
+    selected_category = request.args.get("category")
+    query = "SELECT family_name, category, x_height_ratio, stroke_contrast FROM fonts"
+    params = ()
+    if selected_category:
+        query += " WHERE category = ?"
+        params = (selected_category,)
+    query += " ORDER BY family_name"
+    fonts = [dict(row) for row in conn.execute(query, params).fetchall()]
+    conn.close()
+    return render_template(
+        "browse.html", active="browse", fonts=fonts, categories=categories,
+        selected_category=selected_category,
+    )
+
+
+@app.route("/about")
+def about_page():
+    weights = [
+        (axis, WEIGHTS[axis], AXIS_DESCRIPTIONS[axis])
+        for axis in sorted(WEIGHTS, key=lambda a: -WEIGHTS[a])
+    ]
+    result = run_validation(verbose=False)
+    pairing_count = len(result["good_scores"]) + len(result["bad_scores"]) if result else "?"
+    margin = f"{result['margin']:.3f}" if result else "?"
+    return render_template(
+        "about.html", active="about", weights=weights, pairing_count=pairing_count, margin=margin
+    )
 
 
 @app.route("/output/<path:filename>")

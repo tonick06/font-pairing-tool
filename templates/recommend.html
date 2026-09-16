@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Recommend &mdash; Font Pairing Tool{% endblock %}
+{% block content %}
+  <h1>Recommend</h1>
+  <p class="lede">Pick a font already in the database to rank every other font against it.</p>
+
+  <form class="panel" method="get">
+    <div class="field">
+      <label for="font">Font</label>
+      <select name="font" id="font">
+        {% for f in fonts %}
+          <option value="{{ f }}" {% if f == selected %}selected{% endif %}>{{ f }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button class="btn" type="submit">Show pairings</button>
+  </form>
+
+  {% if selected %}
+    <h2>Top pairings for {{ selected }}</h2>
+    {% for r in results %}
+      <div class="pairing">
+        <img src="{{ url_for('output_file', filename=r.image) }}">
+        <div class="meta">
+          <div class="score">Score: {{ "%.2f"|format(r.score) }}</div>
+          <div class="names">{{ selected }} + {{ r.family_name }} <span style="color:var(--muted)">({{ r.category }})</span></div>
+          <div class="explanation">{{ r.explanation }}</div>
+        </div>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endblock %}

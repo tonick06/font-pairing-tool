@@ -57,8 +57,7 @@ python fontpair.py compare path/to/fontA.ttf path/to/fontB.ttf --render
 ```
 
 `compare` works on any two font files, not just ones in the database — no need to download or catalog a
-font first to see how it pairs with something else. The Flask app (`python app.py`) also has an upload form
-on its homepage for the same thing: pick two `.ttf`/`.otf` files and get the score and a rendered sample.
+font first to see how it pairs with something else.
 
 Or call the underlying modules directly:
 
@@ -66,8 +65,25 @@ Or call the underlying modules directly:
 python src/recommend.py "Playfair Display"                      # rank the database against a font
 python src/recommend.py "Playfair Display" "Source Sans 3"      # score a specific pair, with a breakdown
 python src/render.py "Playfair Display" "Source Sans 3"         # render a demo image for a pairing
-python app.py                                                    # minimal web UI at localhost:5000
 ```
+
+## Web app
+
+```bash
+python app.py    # then open http://localhost:5000
+```
+
+A full multi-page site, not just a single form:
+
+| Page | What it does |
+|---|---|
+| `/` | Landing page with live database stats (font count per category) and links into the rest of the site |
+| `/recommend` | Pick a font from the database, see its top 5 pairings rendered inline |
+| `/compare` | Upload any two `.ttf`/`.otf` files and get a score + rendered sample — no database entry required |
+| `/browse` | Every font in the database with its measured metrics, filterable by category, linking straight into Recommend |
+| `/about` | The scoring methodology, weights table, and live validation numbers (pairing count, margin) — computed on page load, never hardcoded, so it can't go stale |
+
+Templates live in `templates/`, shared styling in `static/style.css`.
 
 ## Scoring axes
 
@@ -101,7 +117,9 @@ validation/     known-good / known-bad pairing reference set
 output/         rendered pairing sample images
 tests/          pytest suite covering extraction and scoring
 fontpair.py     CLI (recommend / score / render / list / compare)
-app.py          minimal Flask web UI
+app.py          Flask web app (see "Web app" section above)
+templates/      Jinja templates for the web app (base layout + one per page)
+static/         shared CSS for the web app
 PROGRESS.md     current status and next steps (for picking work back up)
 EVOLUTION_LOG.md  log of the post-v1 self-improvement loop
 ```

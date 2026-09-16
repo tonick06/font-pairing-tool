@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}About &mdash; Font Pairing Tool{% endblock %}
+{% block content %}
+  <h1>How the scoring works</h1>
+  <p class="lede">
+    Every score is a transparent, hand-designed weighted sum over four axes &mdash; no machine
+    learning, no external ratings. Each axis is computed from metrics extracted directly from the
+    font files themselves (via fontTools): x-height, cap-height, category, weight class, and an
+    approximate stroke-contrast measurement rendered and measured geometrically on the glyph 'O'.
+  </p>
+
+  <table class="weights-table">
+    <thead>
+      <tr><th>Axis</th><th>Weight</th><th>What it measures</th></tr>
+    </thead>
+    <tbody>
+      {% for axis, weight, desc in weights %}
+      <tr>
+        <td><code>{{ axis }}</code></td>
+        <td>{{ weight }}</td>
+        <td>{{ desc }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Validated, not just asserted</h2>
+  <p class="lede">
+    The scoring function is checked against a hand-built set of {{ pairing_count }} known-good and
+    known-bad pairings. Every known-good pairing currently outscores every known-bad one, with a
+    margin of {{ margin }}. That validation set doubles as a regression test &mdash; it's re-run every
+    time the scoring weights or the font database change.
+  </p>
+
+  <h2>Built by an evolving process</h2>
+  <p class="lede">
+    This tool went through six build milestones (extraction &rarr; database &rarr; scoring &rarr;
+    recommendation &rarr; rendering &rarr; web UI), then a self-directed improvement loop that assesses
+    a gap, proposes it, implements, re-validates, and commits &mdash; each step logged before it
+    happens, not after. See <code>EVOLUTION_LOG.md</code> and <code>PROGRESS.md</code> in the project
+    repo for the full, dated record.
+  </p>
+{% endblock %}

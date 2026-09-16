@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Font Pairing Tool{% endblock %}
+{% block content %}
+  <h1>Find fonts that actually work together</h1>
+  <p class="lede">
+    A transparent, hand-designed scoring function &mdash; not a black-box model &mdash; ranks font
+    pairings using real typographic metrics extracted from the font files themselves: x-height,
+    stroke contrast, category, and weight. Every score comes with a plain-English explanation.
+  </p>
+
+  <div class="stat-row">
+    <div class="stat"><div class="num">{{ total_fonts }}</div><div class="label">Fonts</div></div>
+    {% for cat, count in category_counts %}
+    <div class="stat"><div class="num">{{ count }}</div><div class="label">{{ cat }}</div></div>
+    {% endfor %}
+  </div>
+
+  <div class="cta-row">
+    <a class="btn" href="{{ url_for('recommend_page') }}">Get recommendations</a>
+    <a class="btn secondary" href="{{ url_for('compare_page') }}">Compare your own fonts</a>
+    <a class="btn secondary" href="{{ url_for('browse_page') }}">Browse the database</a>
+  </div>
+
+  <h2 style="margin-top:48px;">How it works</h2>
+  <p class="lede">
+    Pick a font on the <a href="{{ url_for('recommend_page') }}" style="color:var(--accent)">Recommend</a>
+    page to rank the whole database against it, or upload two of your own font files on the
+    <a href="{{ url_for('compare_page') }}" style="color:var(--accent)">Compare</a> page &mdash; no database
+    entry required. See <a href="{{ url_for('about_page') }}" style="color:var(--accent)">About</a> for the
+    full scoring methodology and weights.
+  </p>
+{% endblock %}

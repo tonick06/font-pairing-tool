@@ -15,17 +15,33 @@ def _client():
     return app.test_client()
 
 
-def test_index_lists_fonts_without_selection():
+def test_index_shows_stats_and_nav():
     resp = _client().get("/")
     assert resp.status_code == 200
-    assert b"Choose a font" in resp.data
+    assert b"Fonts" in resp.data
+    assert b"Recommend" in resp.data
+    assert b"Compare" in resp.data
+    assert b"Browse" in resp.data
 
 
-def test_index_shows_pairings_for_selected_font():
-    resp = _client().get("/?font=Playfair+Display")
+def test_recommend_page_lists_fonts_without_selection():
+    resp = _client().get("/recommend")
+    assert resp.status_code == 200
+    assert b"<select" in resp.data
+
+
+def test_recommend_page_shows_pairings_for_selected_font():
+    resp = _client().get("/recommend?font=Playfair+Display")
     assert resp.status_code == 200
     assert b"Top pairings for Playfair Display" in resp.data
     assert b"Score:" in resp.data
+
+
+def test_compare_page_renders_upload_form():
+    resp = _client().get("/compare")
+    assert resp.status_code == 200
+    assert b'name="font_a"' in resp.data
+    assert b'name="font_b"' in resp.data
 
 
 def test_upload_scores_two_valid_font_files():
@@ -57,3 +73,24 @@ def test_upload_rejects_disallowed_extension():
         )
     assert resp.status_code == 200
     assert b".ttf and .otf" in resp.data
+
+
+def test_browse_page_lists_all_fonts():
+    resp = _client().get("/browse")
+    assert resp.status_code == 200
+    assert b"Playfair Display" in resp.data
+
+
+def test_browse_page_filters_by_category():
+    resp = _client().get("/browse?category=monospace")
+    assert resp.status_code == 200
+    assert b"JetBrains Mono" in resp.data
+    assert b"Playfair Display" not in resp.data
+
+
+def test_about_page_shows_weights_and_validation_numbers():
+    resp = _client().get("/about")
+    assert resp.status_code == 200
+    assert b"category_contrast" in resp.data
+    assert b"Clean separation" not in resp.data  # prose page, not the raw validate.py output
+    assert b"margin of" in resp.data

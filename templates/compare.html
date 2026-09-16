@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Compare &mdash; Font Pairing Tool{% endblock %}
+{% block content %}
+  <h1>Compare your own fonts</h1>
+  <p class="lede">
+    Upload any two <code>.ttf</code> or <code>.otf</code> files (up to 10MB total) &mdash; no need for
+    either to be in the database first.
+  </p>
+
+  <form class="panel" method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data">
+    <div class="field">
+      <label for="font_a">Font A (heading)</label>
+      <input type="file" name="font_a" id="font_a" accept=".ttf,.otf" required>
+    </div>
+    <div class="field">
+      <label for="font_b">Font B (body)</label>
+      <input type="file" name="font_b" id="font_b" accept=".ttf,.otf" required>
+    </div>
+    <button class="btn" type="submit">Score this pairing</button>
+  </form>
+
+  {% if upload_error %}
+    <div class="error-box">{{ upload_error }}</div>
+  {% endif %}
+
+  {% if upload_result %}
+    <div class="pairing">
+      <img src="{{ url_for('output_file', filename='uploads/' + upload_result.image) }}">
+      <div class="meta">
+        <div class="score">Score: {{ "%.2f"|format(upload_result.score) }}</div>
+        <div class="explanation">{{ upload_result.explanation }}</div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

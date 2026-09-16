@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{% block title %}Font Pairing Tool{% endblock %}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<nav class="topnav">
+  <div class="inner">
+    <a class="brand" href="{{ url_for('index') }}">Font Pairing Tool</a>
+    <a class="navlink {% if active == 'recommend' %}active{% endif %}" href="{{ url_for('recommend_page') }}">Recommend</a>
+    <a class="navlink {% if active == 'compare' %}active{% endif %}" href="{{ url_for('compare_page') }}">Compare</a>
+    <a class="navlink {% if active == 'browse' %}active{% endif %}" href="{{ url_for('browse_page') }}">Browse fonts</a>
+    <a class="navlink {% if active == 'about' %}active{% endif %}" href="{{ url_for('about_page') }}">About</a>
+  </div>
+</nav>
+<div class="wrap">
+  {% block content %}{% endblock %}
+</div>
+</body>
+</html>
