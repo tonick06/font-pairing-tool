@@ -4,12 +4,12 @@ raw.githubusercontent.com probing approach as cycles 1 and 7 (no
 api.github.com folder listing, so no rate-limit risk).
 """
 
-import io
 import os
+import sys
 import requests
 
-from fontTools.ttLib import TTFont
-from fontTools.varLib.instancer import instantiateVariableFont
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from font_download_utils import instantiate_if_variable
 
 RAW_BASE = "https://raw.githubusercontent.com/google/fonts/main"
 OUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "fonts")
@@ -106,18 +106,6 @@ NEW_FAMILIES = [
 ]
 
 
-def _instantiate_if_variable(content: bytes, weight: int = 400) -> bytes:
-    ttfont = TTFont(io.BytesIO(content))
-    if "fvar" not in ttfont:
-        return content
-    axes = {a.axisTag: weight if a.axisTag == "wght" else a.defaultValue
-            for a in ttfont["fvar"].axes}
-    instantiateVariableFont(ttfont, axes, inplace=True)
-    buf = io.BytesIO()
-    ttfont.save(buf)
-    return buf.getvalue()
-
-
 def download_popular_fonts():
     os.makedirs(OUT_DIR, exist_ok=True)
     session = requests.Session()
@@ -140,7 +128,7 @@ def download_popular_fonts():
             if resp.status_code == 200 and len(resp.content) > 1000:
                 content = resp.content
                 try:
-                    content = _instantiate_if_variable(content)
+                    content = instantiate_if_variable(content)
                 except Exception:
                     pass
                 with open(out_path, "wb") as f:

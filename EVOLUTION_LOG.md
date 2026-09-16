@@ -301,3 +301,19 @@ during earlier cycles. Same gap for the CLI's `render` and `compare`
 subcommands: test_cli.py only covers list/recommend/score. Adding direct
 tests for render_pairing (creates a file, includes both names in the
 output path) and CLI smoke tests for `render`/`compare`.
+
+---
+
+## Cycle 15: Deduplicate the variable-font instancing helper
+
+Checked the four download_*.py scripts written across cycles 1, 2 (base),
+7, and 9 for accumulated duplication. Found `_instantiate_if_variable` -
+the helper that instances a variable font down to a static wght=400 -
+copy-pasted byte-for-byte identical across download_monospace.py,
+download_more_categories.py, and download_popular_fonts.py. (The
+original download_fonts.py has a related but differently-shaped
+`_instantiate_static`, returning a TTFont object rather than bytes and
+used with a different call-site contract - not touching that one, since
+merging it would require changing its surrounding code too, for a script
+that only ever ran once historically.) Extracting the three identical
+copies into a new src/font_download_utils.py and importing from it.

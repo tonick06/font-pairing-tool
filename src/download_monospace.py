@@ -6,12 +6,12 @@ the folder via api.github.com (which has a much stricter unauthenticated
 rate limit and is what stalled the original download_fonts.py run).
 """
 
-import io
 import os
+import sys
 import requests
 
-from fontTools.ttLib import TTFont
-from fontTools.varLib.instancer import instantiateVariableFont
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from font_download_utils import instantiate_if_variable
 
 RAW_BASE = "https://raw.githubusercontent.com/google/fonts/main"
 OUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "fonts")
@@ -32,18 +32,6 @@ MONOSPACE_FAMILIES = [
     ("ofl/dmmono", "DM Mono", ["DMMono-Regular.ttf"]),
     ("ofl/robotomono", "Roboto Mono", []),  # placeholder to keep index stable if list edited
 ]
-
-
-def _instantiate_if_variable(content: bytes, weight: int = 400) -> bytes:
-    ttfont = TTFont(io.BytesIO(content))
-    if "fvar" not in ttfont:
-        return content
-    axes = {a.axisTag: weight if a.axisTag == "wght" else a.defaultValue
-            for a in ttfont["fvar"].axes}
-    instantiateVariableFont(ttfont, axes, inplace=True)
-    buf = io.BytesIO()
-    ttfont.save(buf)
-    return buf.getvalue()
 
 
 def download_monospace():
@@ -74,7 +62,7 @@ def download_monospace():
             if resp.status_code == 200 and len(resp.content) > 1000:
                 content = resp.content
                 try:
-                    content = _instantiate_if_variable(content)
+                    content = instantiate_if_variable(content)
                 except Exception:
                     pass
                 with open(out_path, "wb") as f:

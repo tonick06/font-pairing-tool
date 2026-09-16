@@ -140,6 +140,15 @@ for the latest cycle entries; this file's "Next step" line reflects whatever the
   extended test_cli.py with render/compare subcommand smoke tests (previously only list/recommend/score
   were covered). Full suite now 27/27 passing. No scoring changes; validation margin unchanged at 0.212.
 
+- Cycle 15 (see EVOLUTION_LOG.md): extracted the byte-for-byte identical `_instantiate_if_variable` helper,
+  copy-pasted across download_monospace.py, download_more_categories.py, and download_popular_fonts.py
+  (cycles 1, 7, 9), into a new src/font_download_utils.py. All three now import the shared
+  `instantiate_if_variable`. Verified: all three import cleanly and share the same function object,
+  re-running download_popular_fonts.py produces identical output to before the refactor (57 ready, 16
+  failed, same list). download_fonts.py's differently-shaped `_instantiate_static` (returns a TTFont, not
+  bytes) was deliberately left alone - lower value to touch a one-time historical script for a bigger diff.
+  27/27 tests pass; validation margin unchanged at 0.212.
+
 ## Next step (for a human, or a future loop)
 - `weight_compat` scoring axis is still dead (every font in the DB is Regular/400). Fixing it needs: (1) a
   second weight per family downloaded, (2) a way to disambiguate SQLite rows that share a `family_name`
