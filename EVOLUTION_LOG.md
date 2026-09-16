@@ -415,3 +415,56 @@ insensitive fallback to get_font() and validate.py's _load_font(), and
 upgrading recommend_pairings()'s scan from case-insensitive to
 space-and-case-insensitive, so "Nova Mono" resolves to the DB's stored
 "NovaMono" everywhere.
+
+---
+
+## Loop closed: overnight run summary
+
+The self-scheduled overnight loop (via CronCreate, firing every ~15 min)
+ran from roughly 03:24 to 06:24 local time and produced 20 evolution
+cycles total, plus the 6 base milestones before it. It stopped making
+progress at cycle 20 (06:24) even though the cron job itself stayed
+scheduled - the gap until this wrap-up fired at 12:26 was the laptop
+going to sleep, per the caveat given to the user up front (the loop
+needs the machine to stay awake and the app open to keep running).
+Nothing broke; it just paused for ~6 hours and this fire is closing it
+out per its own stop condition (past 2026-09-16T11:00+01:00) rather than
+starting a 21st cycle now.
+
+**Final state:** 146 fonts across all 5 categories (sans-serif 48+,
+serif 32+, display 28+, monospace 17+, slab-serif 11), 33 tests passing,
+scoring validation clean-separated across 51 known-good/known-bad
+pairings (margin 0.212).
+
+**What the 20 cycles did, grouped:**
+- Database growth: monospace category filled (cycle 1), slab-serif/
+  display balanced (cycle 7), 57 popular fonts bulk-added (cycle 9), 10
+  of cycle 9's failures recovered with corrected filenames (cycle 18) -
+  58 -> 146 fonts total.
+- Features: CLI (cycle 2), static HTML gallery (cycle 6), score-any-two-
+  files with no DB entry required, both CLI and web upload (cycle 8).
+- Real bugs found and fixed via data audits: an OS/2 metadata bug
+  understating one font's x-height (cycle 10), 3 fonts miscategorized as
+  slab-serif when they're old-style serifs, caught by checking our own
+  stroke-contrast data against fetched Google Fonts METADATA.pb (cycle
+  16), and a family-name lookup gap where a font's internal name omitted
+  a space its display name had (cycle 20).
+- Validation grew from 16 to 51 pairings across 3 cycles (4, 11, 19),
+  each time re-checking real fonts added since the last expansion.
+- Cleanup: deduplicated a helper copy-pasted across 3 download scripts
+  (cycle 15), fixed stale README claims twice (cycles 5's report and
+  cycle 12).
+- Test coverage added for 3 previously-untested modules: app.py (cycle
+  13), render.py's render_pairing (cycle 14), category_lookup.py (cycle
+  17) - each found because it had zero direct assertions despite being a
+  real deliverable or having had bugs fixed in it.
+
+**Still open** (see PROGRESS.md's "Next step" for the living version):
+`weight_compat` scoring axis remains uninformative since every font in
+the DB is Regular/400 - fixing it needs bold-weight downloads plus a
+disambiguation scheme for database rows sharing a family_name, flagged
+and deliberately deferred multiple times as too large for one cycle.
+6 of cycle 9's original 16 download failures were never chased further
+(api.github.com rate-limiting made their real filenames hard to confirm).
+
+Calling CronDelete on this job now.
