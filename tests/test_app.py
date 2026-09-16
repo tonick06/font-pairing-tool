@@ -5,9 +5,21 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
 
 from app import app
+import build_database
 
 GEORGIA = "C:/Windows/Fonts/georgia.ttf"
 ARIAL = "C:/Windows/Fonts/arial.ttf"
+
+
+def _isolate_persistence(tmp_path, monkeypatch):
+    """Redirect where uploaded fonts get persisted (fonts/ + metrics.db) to
+    a throwaway temp location, so tests never mutate the real font library
+    or database. build_database.FONTS_DIR/DB_PATH are read fresh inside
+    persist_uploaded_font/add_font_to_database at call time (not bound as
+    default parameter values), so monkeypatching the module attributes
+    here actually takes effect."""
+    monkeypatch.setattr(build_database, "FONTS_DIR", str(tmp_path / "fonts"))
+    monkeypatch.setattr(build_database, "DB_PATH", str(tmp_path / "metrics.db"))
 
 
 def _client():
@@ -44,7 +56,8 @@ def test_compare_page_renders_upload_form():
     assert b'name="font_b"' in resp.data
 
 
-def test_upload_scores_two_valid_font_files():
+def test_upload_scores_two_valid_font_files(tmp_path, monkeypatch):
+    _isolate_persistence(tmp_path, monkeypatch)
     client = _client()
     with open(GEORGIA, "rb") as fa, open(ARIAL, "rb") as fb:
         resp = client.post(
@@ -55,6 +68,23 @@ def test_upload_scores_two_valid_font_files():
     assert resp.status_code == 200
     assert b"Score:" in resp.data
     assert b"/output/uploads/" in resp.data
+
+
+def test_upload_persists_fonts_to_isolated_location_not_production(tmp_path, monkeypatch):
+    """Regression test: an earlier version of this feature copied uploaded
+    fonts straight into the real fonts/ dir and metrics.db as a side effect
+    of running this very test suite."""
+    _isolate_persistence(tmp_path, monkeypatch)
+    client = _client()
+    with open(GEORGIA, "rb") as fa, open(ARIAL, "rb") as fb:
+        client.post(
+            "/upload",
+            data={"font_a": (fa, "georgia.ttf"), "font_b": (fb, "arial.ttf")},
+            content_type="multipart/form-data",
+        )
+    assert (tmp_path / "fonts" / "Georgia.ttf").exists()
+    assert (tmp_path / "fonts" / "Arial.ttf").exists()
+    assert (tmp_path / "metrics.db").exists()
 
 
 def test_upload_missing_files_shows_error():
@@ -73,6 +103,24 @@ def test_upload_rejects_disallowed_extension():
         )
     assert resp.status_code == 200
     assert b".ttf and .otf" in resp.data
+
+
+def test_match_font_finds_top_matches_from_database(tmp_path, monkeypatch):
+    _isolate_persistence(tmp_path, monkeypatch)
+    client = _client()
+    with open(GEORGIA, "rb") as fa:
+        resp = client.post(
+            "/match", data={"font_solo": (fa, "georgia.ttf")}, content_type="multipart/form-data"
+        )
+    assert resp.status_code == 200
+    assert b"Top matches for Georgia" in resp.data
+    assert b"Score:" in resp.data
+
+
+def test_match_font_missing_file_shows_error():
+    resp = _client().post("/match", data={}, content_type="multipart/form-data")
+    assert resp.status_code == 200
+    assert b"choose a font file" in resp.data
 
 
 def test_browse_page_lists_all_fonts():

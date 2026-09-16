@@ -1,35 +1,113 @@
 {% extends "base.html" %}
 {% block title %}Compare &mdash; Font Pairing Tool{% endblock %}
 {% block content %}
-  <h1>Compare your own fonts</h1>
+  <h1>Bring your own fonts</h1>
   <p class="lede">
-    Upload any two <code>.ttf</code> or <code>.otf</code> files (up to 10MB total) &mdash; no need for
-    either to be in the database first.
+    Upload <code>.ttf</code> or <code>.otf</code> files directly &mdash; nothing needs to be in the
+    database first. Two ways to use it, side by side. Fonts you upload are added to the database
+    permanently, so they'll show up in Recommend and Browse afterward too.
   </p>
 
-  <form class="panel" method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data">
-    <div class="field">
-      <label for="font_a">Font A (heading)</label>
-      <input type="file" name="font_a" id="font_a" accept=".ttf,.otf" required>
-    </div>
-    <div class="field">
-      <label for="font_b">Font B (body)</label>
-      <input type="file" name="font_b" id="font_b" accept=".ttf,.otf" required>
-    </div>
-    <button class="btn" type="submit">Score this pairing</button>
-  </form>
+  <div class="compare-grid">
 
-  {% if upload_error %}
-    <div class="error-box">{{ upload_error }}</div>
-  {% endif %}
-
-  {% if upload_result %}
-    <div class="pairing">
-      <img src="{{ url_for('output_file', filename='uploads/' + upload_result.image) }}">
-      <div class="meta">
-        <div class="score">Score: {{ "%.2f"|format(upload_result.score) }}</div>
-        <div class="explanation">{{ upload_result.explanation }}</div>
+    <div class="compare-card">
+      <div class="compare-card-head">
+        <span class="compare-icon">&#8596;</span>
+        <div>
+          <h2>Compare two fonts</h2>
+          <p class="card-sub">Score a specific heading + body pairing you already have in mind.</p>
+        </div>
       </div>
+
+      <form method="post" action="{{ url_for('upload') }}" enctype="multipart/form-data">
+        <div class="dropzone-row">
+          <label class="dropzone" data-role="dropzone">
+            <input type="file" name="font_a" accept=".ttf,.otf" required>
+            <span class="dz-label">Font A &mdash; heading</span>
+            <span class="dz-filename">Drop a file or click to choose</span>
+          </label>
+          <label class="dropzone" data-role="dropzone">
+            <input type="file" name="font_b" accept=".ttf,.otf" required>
+            <span class="dz-label">Font B &mdash; body</span>
+            <span class="dz-filename">Drop a file or click to choose</span>
+          </label>
+        </div>
+        <button class="btn" type="submit">Score this pairing</button>
+      </form>
+
+      {% if upload_error %}
+        <div class="error-box">{{ upload_error }}</div>
+      {% endif %}
+
+      {% if upload_result %}
+        <div class="pairing result-pairing">
+          <img src="{{ url_for('output_file', filename='uploads/' + upload_result.image) }}">
+          <div class="meta">
+            <div class="score">Score: {{ "%.2f"|format(upload_result.score) }}</div>
+            <div class="explanation">{{ upload_result.explanation }}</div>
+          </div>
+        </div>
+      {% endif %}
     </div>
-  {% endif %}
+
+    <div class="compare-card">
+      <div class="compare-card-head">
+        <span class="compare-icon">&#8981;</span>
+        <div>
+          <h2>Find its best matches</h2>
+          <p class="card-sub">Upload one font and rank all {{ total_fonts }} fonts already in the database against it.</p>
+        </div>
+      </div>
+
+      <form method="post" action="{{ url_for('match_font') }}" enctype="multipart/form-data">
+        <label class="dropzone" data-role="dropzone">
+          <input type="file" name="font_solo" accept=".ttf,.otf" required>
+          <span class="dz-label">Your font</span>
+          <span class="dz-filename">Drop a file or click to choose</span>
+        </label>
+        <button class="btn" type="submit">Find top matches</button>
+      </form>
+
+      {% if match_error %}
+        <div class="error-box">{{ match_error }}</div>
+      {% endif %}
+
+      {% if match_results %}
+        <h2 class="match-heading">Top matches for {{ match_uploaded_family }}</h2>
+        {% for r in match_results %}
+          <div class="pairing result-pairing">
+            <span class="rank-badge">#{{ loop.index }}</span>
+            <img src="{{ url_for('output_file', filename='uploads/' + r.image) }}">
+            <div class="meta">
+              <div class="score">Score: {{ "%.2f"|format(r.score) }}</div>
+              <div class="names">{{ match_uploaded_family }} + {{ r.family_name }} <span style="color:var(--muted)">({{ r.category }})</span></div>
+              <div class="explanation">{{ r.explanation }}</div>
+            </div>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+  </div>
+
+  <script>
+    document.querySelectorAll('[data-role="dropzone"]').forEach(function (zone) {
+      var input = zone.querySelector('input[type=file]');
+      var filenameEl = zone.querySelector('.dz-filename');
+      var defaultText = filenameEl.textContent;
+
+      input.addEventListener('change', function () {
+        filenameEl.textContent = input.files.length ? input.files[0].name : defaultText;
+        zone.classList.toggle('has-file', input.files.length > 0);
+      });
+
+      ['dragover', 'dragleave', 'drop'].forEach(function (evt) {
+        zone.addEventListener(evt, function (e) {
+          if (evt === 'dragover') { e.preventDefault(); zone.classList.add('dragging'); }
+          if (evt === 'dragleave') { zone.classList.remove('dragging'); }
+          if (evt === 'drop') { zone.classList.remove('dragging'); }
+        });
+      });
+    });
+  </script>
 {% endblock %}

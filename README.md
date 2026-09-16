@@ -79,7 +79,7 @@ A full multi-page site, not just a single form:
 |---|---|
 | `/` | Landing page with live database stats (font count per category) and links into the rest of the site |
 | `/recommend` | Pick a font from the database, see its top 5 pairings rendered inline |
-| `/compare` | Upload any two `.ttf`/`.otf` files and get a score + rendered sample — no database entry required |
+| `/compare` | Two ways to bring your own fonts: compare two files directly, or upload one and rank it against every font already in the database. Fonts you upload are persisted into the database, so they show up in Recommend/Browse afterward too |
 | `/browse` | Every font in the database with its measured metrics, filterable by category, linking straight into Recommend |
 | `/about` | The scoring methodology, weights table, and live validation numbers (pairing count, margin) — computed on page load, never hardcoded, so it can't go stale |
 

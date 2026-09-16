@@ -18,6 +18,7 @@ from werkzeug.utils import secure_filename
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "src"))
 from recommend import recommend_pairings, _connect, DB_PATH
 from render import render_pairing, render_font_files, OUTPUT_DIR
+from compare_files import recommend_for_file, persist_uploaded_font
 from scoring import WEIGHTS
 from validate import run_validation
 
@@ -81,6 +82,14 @@ def recommend_page():
     )
 
 
+@app.context_processor
+def inject_total_fonts():
+    conn = _connect(DB_PATH)
+    total = conn.execute("SELECT COUNT(*) FROM fonts").fetchone()[0]
+    conn.close()
+    return {"total_fonts": total}
+
+
 @app.route("/compare")
 def compare_page():
     return render_template("compare.html", active="compare")
@@ -110,7 +119,11 @@ def upload():
     file_b.save(path_b)
 
     try:
-        result = render_font_files(path_a, path_b, out_dir=UPLOAD_DIR)
+        # Persisting means this font shows up in future Recommend/Browse
+        # results too, not just this one comparison.
+        persisted_a = persist_uploaded_font(path_a)
+        persisted_b = persist_uploaded_font(path_b)
+        result = render_font_files(persisted_a["filepath"], persisted_b["filepath"], out_dir=UPLOAD_DIR)
     except Exception as e:
         return render_template(
             "compare.html", active="compare", upload_error=f"Could not score these fonts: {e}"
@@ -122,6 +135,49 @@ def upload():
         "image": os.path.basename(result["image_path"]),
     }
     return render_template("compare.html", active="compare", upload_result=upload_result)
+
+
+@app.route("/match", methods=["POST"])
+def match_font():
+    file_a = request.files.get("font_solo")
+
+    if not file_a or not file_a.filename:
+        return render_template("compare.html", active="compare", match_error="Please choose a font file.")
+    if not _allowed_font_file(file_a.filename):
+        return render_template(
+            "compare.html", active="compare", match_error="Only .ttf and .otf files are accepted."
+        )
+
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+    token = uuid.uuid4().hex[:8]
+    path_a = os.path.join(UPLOAD_DIR, f"{token}_solo_{secure_filename(file_a.filename)}")
+    file_a.save(path_a)
+
+    try:
+        # Rank against the database *before* persisting, so the just-uploaded
+        # font can't match against itself.
+        result = recommend_for_file(path_a, top_n=5)
+        persisted_a = persist_uploaded_font(path_a)
+    except Exception as e:
+        return render_template(
+            "compare.html", active="compare", match_error=f"Could not read this font: {e}"
+        )
+
+    matches = []
+    for m in result["matches"]:
+        rendered = render_font_files(persisted_a["filepath"], m["filepath"], out_dir=UPLOAD_DIR)
+        matches.append({
+            "family_name": m["family_name"],
+            "category": m["category"],
+            "score": m["score"],
+            "explanation": m["explanation"],
+            "image": os.path.basename(rendered["image_path"]),
+        })
+
+    return render_template(
+        "compare.html", active="compare",
+        match_uploaded_family=result["uploaded_family"], match_results=matches,
+    )
 
 
 @app.route("/browse")
