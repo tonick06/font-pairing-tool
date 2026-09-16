@@ -257,3 +257,17 @@ which the x-height axis correctly penalizes. Swapped it for "IBM Plex
 Mono + Merriweather" (x-heights 0.516 vs 0.5555, much closer), which
 restores clean separation with an even slightly better margin (0.212 vs
 the prior 0.205) across the larger 44-pairing set.
+
+---
+
+## Cycle 12: Fix stale documentation in README.md
+
+The README's "Post-v1: self-evolution loop" section was written after
+cycle 5 and never updated: it says "five rounds" (11 have run now), cites
+"16 to 36 pairings" (44 now), and its highlights list doesn't mention the
+gallery (cycle 6), the compare-two-files feature (cycle 8), the bulk font
+import (cycles 7/9, 79->136 fonts), or the x-height bug fix (cycle 10).
+The repo-structure listing's one-line description of fontpair.py also
+omits the `compare` subcommand added in cycle 8. This is real, checkable
+staleness (not a style nitpick) that would mislead anyone reading the
+README to understand the project's actual current state - fixing it.

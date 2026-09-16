@@ -99,7 +99,7 @@ src/            extraction, scoring, recommendation, and rendering code
 validation/     known-good / known-bad pairing reference set
 output/         rendered pairing sample images
 tests/          pytest suite covering extraction and scoring
-fontpair.py     CLI (recommend / score / render / list)
+fontpair.py     CLI (recommend / score / render / list / compare)
 app.py          minimal Flask web UI
 PROGRESS.md     current status and next steps (for picking work back up)
 EVOLUTION_LOG.md  log of the post-v1 self-improvement loop
@@ -107,13 +107,19 @@ EVOLUTION_LOG.md  log of the post-v1 self-improvement loop
 
 ## Post-v1: self-evolution loop
 
-Once the six milestones above were complete, the project went through five
-rounds of self-directed improvement (assess a gap, propose it in
-`EVOLUTION_LOG.md`, implement, re-validate, commit). See that file for the
-full record — highlights: filled the monospace category gap, added the
-`fontpair` CLI, improved the renderer's multi-size preview and error
-handling, and grew the validation set from 16 to 36 pairings across all
-five categories.
+Once the six milestones above were complete, the project went into an ongoing
+self-directed improvement loop (assess a gap, propose it in `EVOLUTION_LOG.md`,
+implement, re-validate, commit) that has run for 12+ cycles so far. See that
+file for the full, dated record — highlights: filled the monospace and
+slab-serif/display category gaps, bulk-added popular fonts (database grew
+79 -> 136 fonts across cycles 7 and 9), added the `fontpair` CLI and a
+score-any-two-files feature (no database entry required), built a
+self-contained HTML gallery, fixed a real font-metadata extraction bug found
+via a data-integrity audit, and grew the validation set from 16 to 44
+pairings across all five categories. This file's numbers (font count,
+pairing count) reflect whatever the most recent cycle left off at — check
+`EVOLUTION_LOG.md` and `PROGRESS.md` for the current state, since the loop
+may have continued after this paragraph was last updated.
 
 ## Non-goals (v1)
 

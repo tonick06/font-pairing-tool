@@ -123,6 +123,12 @@ for the latest cycle entries; this file's "Next step" line reflects whatever the
   ratios (Pacifico's 1.303 is a deliberate script-font choice, not a bug, and isn't used in scoring anyway
   - no fix needed). 18/18 tests pass.
 
+- Cycle 12 (see EVOLUTION_LOG.md): fixed stale documentation in README.md. The "Post-v1: self-evolution
+  loop" section still said "five rounds" and "16 to 36 pairings" (actually 11+ cycles, 44 pairings by this
+  point) and its highlights omitted the gallery, compare-files feature, bulk font import, and x-height bug
+  fix entirely. Also fixed fontpair.py's one-line description in the repo-structure listing to mention
+  `compare`. Docs-only change; confirmed no regression (18/18 tests, margin unchanged at 0.212).
+
 ## Next step (for a human, or a future loop)
 - `weight_compat` scoring axis is still dead (every font in the DB is Regular/400). Fixing it needs: (1) a
   second weight per family downloaded, (2) a way to disambiguate SQLite rows that share a `family_name`
