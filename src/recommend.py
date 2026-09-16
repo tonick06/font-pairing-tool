@@ -20,9 +20,22 @@ def _all_fonts(conn):
     return [dict(row) for row in conn.execute("SELECT * FROM fonts").fetchall()]
 
 
+def _normalize(name: str) -> str:
+    """Space/case-insensitive key for matching a user-facing font name (e.g.
+    "Nova Mono") against a font's own embedded family name (e.g. "NovaMono"
+    - some font files omit spaces that their Google Fonts display name has)."""
+    return name.replace(" ", "").lower()
+
+
 def get_font(name: str, db_path: str = DB_PATH):
     conn = _connect(db_path)
     row = conn.execute("SELECT * FROM fonts WHERE family_name = ? LIMIT 1", (name,)).fetchone()
+    if row is None:
+        target = _normalize(name)
+        for candidate in conn.execute("SELECT * FROM fonts").fetchall():
+            if _normalize(candidate["family_name"]) == target:
+                row = candidate
+                break
     conn.close()
     return dict(row) if row else None
 
@@ -33,7 +46,8 @@ def recommend_pairings(font_name: str, top_n: int = 5, db_path: str = DB_PATH):
     fonts = _all_fonts(conn)
     conn.close()
 
-    target = next((f for f in fonts if f["family_name"].lower() == font_name.lower()), None)
+    target_norm = _normalize(font_name)
+    target = next((f for f in fonts if _normalize(f["family_name"]) == target_norm), None)
     if target is None:
         raise ValueError(f"Font '{font_name}' not found in database")
 

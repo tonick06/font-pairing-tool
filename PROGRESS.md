@@ -183,11 +183,14 @@ for the latest cycle entries; this file's "Next step" line reflects whatever the
   no weak picks needed swapping out. Clean separation maintained, margin unchanged at 0.212. 32/32 tests
   pass.
 
+- Cycle 20 (see EVOLUTION_LOG.md): fixed the Nova Mono lookup gap flagged in cycle 19, after reassessing it
+  as small rather than big - grepped for every direct `family_name =` query site and found only two
+  (recommend.py's get_font, used everywhere else funnels through it, and validate.py's _load_font), plus
+  one inline scan in recommend_pairings. Added a space/case-insensitive fallback to both, so "Nova Mono"
+  now resolves to the DB's stored "NovaMono" via the CLI, render, and app. Added a regression test. 33/33
+  tests pass; validation margin unchanged at 0.212.
+
 ## Next step (for a human, or a future loop)
-- Nova Mono's font file stores its internal family name as "NovaMono" (no space), different from its
-  Google Fonts display name - `fontpair.py recommend "Nova Mono"` (with the space) fails to find it. A real
-  discoverability gap (found in cycle 18) that needs a family-name normalization/alias layer touching every
-  lookup site (recommend.py, render.py, app.py, fontpair.py) to fix properly - bigger than one cycle.
 - `weight_compat` scoring axis is still dead (every font in the DB is Regular/400). Fixing it needs: (1) a
   second weight per family downloaded, (2) a way to disambiguate SQLite rows that share a `family_name`
   across recommend.py/render.py/app.py's queries (currently all assume one row per family). Flagged and

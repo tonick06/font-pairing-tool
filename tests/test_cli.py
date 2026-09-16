@@ -43,6 +43,15 @@ def test_score_known_pair():
     assert "Playfair Display + Source Sans 3" in result.stdout
 
 
+def test_score_resolves_space_insensitive_family_name():
+    """Regression test for cycle 20: Nova Mono's font file stores its
+    internal family name as "NovaMono" (no space); the CLI must still
+    resolve the space-containing display name to it."""
+    result = _run("score", "Nova Mono", "Merriweather")
+    assert result.returncode == 0
+    assert "NovaMono + Merriweather" in result.stdout
+
+
 def test_render_creates_image(tmp_path):
     out_dir = str(tmp_path)
     result = _run("render", "Playfair Display", "Source Sans 3", "--out", out_dir)

@@ -397,3 +397,21 @@ Asap+Noto Serif 0.727, Overpass+Old Standard TT 0.630, Shadows Into
 Light+Signika 0.581) and 3 new bad pairings (Noto Sans+Overpass 0.459,
 Saira+Asap 0.479, Signika+Fredoka 0.457) - all comfortably clear of the
 existing good_min (0.495) and bad_max (0.489) before being added.
+
+---
+
+## Cycle 20: Fix the Nova Mono lookup gap (reassessed as small, not big)
+
+Re-examined the "Nova Mono" family-name discoverability gap flagged in
+cycle 19's PROGRESS.md, which was described there as needing "a
+normalization layer touching every lookup site" - too big for one cycle.
+Grepped for every direct `family_name =` query site and found only two:
+recommend.py's get_font() (used by score_pairing, render.py, and
+app.py - i.e. everything funnels through it) and validate.py's
+_load_font(), plus one inline case-insensitive scan inside
+recommend_pairings(). That earlier assessment was overly cautious - this
+is a small, well-contained fix, not a big one. Adding a space/case-
+insensitive fallback to get_font() and validate.py's _load_font(), and
+upgrading recommend_pairings()'s scan from case-insensitive to
+space-and-case-insensitive, so "Nova Mono" resolves to the DB's stored
+"NovaMono" everywhere.

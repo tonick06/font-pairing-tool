@@ -16,13 +16,25 @@ VALIDATION_PATH = os.path.join(
 )
 
 
+def _normalize(name: str) -> str:
+    """Space/case-insensitive key, matching recommend.py's fallback (e.g.
+    "Nova Mono" vs the font file's own embedded name "NovaMono")."""
+    return name.replace(" ", "").lower()
+
+
 def _load_font(conn, family_name):
     row = conn.execute(
         "SELECT * FROM fonts WHERE family_name = ? LIMIT 1", (family_name,)
     ).fetchone()
+    cols = [d[0] for d in conn.execute("SELECT * FROM fonts LIMIT 0").description]
+    if row is None:
+        target = _normalize(family_name)
+        for candidate in conn.execute("SELECT * FROM fonts").fetchall():
+            if _normalize(candidate[cols.index("family_name")]) == target:
+                row = candidate
+                break
     if row is None:
         return None
-    cols = [d[0] for d in conn.execute("SELECT * FROM fonts LIMIT 0").description]
     return dict(zip(cols, row))
 
 
