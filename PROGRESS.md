@@ -52,8 +52,24 @@
   at 0.205 (good avg 0.624, bad avg 0.419), still a clean separation. This gives more confidence the weights
   generalize rather than being overfit to the original small set.
 
-## Next step
-- Continue the self-evolution loop (cycle 5 of 5, final cycle) (assess -> propose in EVOLUTION_LOG.md -> implement -> validate ->
+- Cycle 5, final (see EVOLUTION_LOG.md): documentation and test-coverage polish. Updated README.md (font
+  count 58->69, CLI usage section, corrected scoring-axis weights table and reasoning, repo structure,
+  pointer to EVOLUTION_LOG.md). Added tests/test_cli.py (5 subprocess smoke tests for all four `fontpair`
+  subcommands). Full suite: 13/13 passing. Considered a new scoring axis to widen the validation margin
+  further but found no concrete failure case driving it, so declined per the anti-speculation guardrail.
+
+The scheduled 5-cycle self-evolution loop is now complete. See EVOLUTION_LOG.md's "Final report" section
+for the full summary of what each cycle did and what's still open.
+
+## Next step (for a human, or a future loop)
+- `weight_compat` scoring axis is still dead (every font in the DB is Regular/400). Fixing it needs: (1) a
+  second weight per family downloaded, (2) a way to disambiguate SQLite rows that share a `family_name`
+  across recommend.py/render.py/app.py's queries (currently all assume one row per family). Flagged and
+  deliberately deferred twice (cycles 2 and 4) as too large for a single cycle - do this as its own
+  standalone piece of work with its own validation pass.
+- category_lookup.py's serif/sans/slab/display/mono assignments are hand-curated from memory of Google
+  Fonts' own tags, not cross-checked against their METADATA.pb files - worth an audit pass at some point.
+- PT Mono never resolved (all attempted raw.githubusercontent.com filenames 404'd) - low priority, one font. (assess -> propose in EVOLUTION_LOG.md -> implement -> validate ->
   commit -> update this file). Do not change the core weighted-sum scoring philosophy without asking first.
   Known gaps for the loop to consider: no monospace fonts in the DB (download_fonts.py needs a GITHUB_TOKEN to
   get past the 60 req/hr unauthenticated rate limit, or a resumable re-run); weight_compat axis is currently

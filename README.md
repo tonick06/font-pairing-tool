@@ -15,6 +15,9 @@ the font files — no external ratings, no ML model, no manual curation.
    information isn't reliably present in the font file itself.
 2. **Database** ([src/build_database.py](src/build_database.py)) runs the extractor across every font in
    `fonts/` and stores the results in a SQLite database at `data/metrics.db`.
+   Currently 69 fonts across all five categories (serif, sans-serif,
+   slab-serif, display, monospace) — see [src/download_fonts.py](src/download_fonts.py) and
+   [src/download_monospace.py](src/download_monospace.py) for how they were fetched from Google Fonts.
 3. **Scoring** ([src/scoring.py](src/scoring.py)) combines four normalized axes — x-height
    compatibility, category contrast, weight compatibility, and stroke-contrast
    similarity — into a transparent weighted sum. Every score is traceable back
@@ -33,35 +36,50 @@ the font files — no external ratings, no ML model, no manual curation.
 
 ```bash
 pip install -r requirements.txt
-python src/download_fonts.py     # pulls ~70 fonts from Google Fonts into fonts/
-python src/build_database.py     # extracts metrics into data/metrics.db
-python src/validate.py           # sanity-checks the scoring function
+python src/download_fonts.py       # pulls font families from Google Fonts into fonts/
+python src/download_monospace.py   # fills in the monospace category (see EVOLUTION_LOG.md cycle 1)
+python src/build_database.py       # extracts metrics into data/metrics.db
+python src/validate.py             # sanity-checks the scoring function
 ```
 
 ## Usage
 
+The `fontpair` CLI is the easiest way to use the tool day-to-day:
+
 ```bash
-# Rank the database against a font
-python src/recommend.py "Playfair Display"
+python fontpair.py recommend "Playfair Display" --top 5
+python fontpair.py score "Playfair Display" "Source Sans 3"
+python fontpair.py render "Playfair Display" "Source Sans 3" --out output/
+python fontpair.py list --category serif
+```
 
-# Score a specific pair, with a breakdown
-python src/recommend.py "Playfair Display" "Source Sans 3"
+Or call the underlying modules directly:
 
-# Render a demo image for a pairing
-python src/render.py "Playfair Display" "Source Sans 3"
+```bash
+python src/recommend.py "Playfair Display"                      # rank the database against a font
+python src/recommend.py "Playfair Display" "Source Sans 3"      # score a specific pair, with a breakdown
+python src/render.py "Playfair Display" "Source Sans 3"         # render a demo image for a pairing
+python app.py                                                    # minimal web UI at localhost:5000
 ```
 
 ## Scoring axes
 
 | Axis | Weight | What it measures |
 |---|---|---|
-| x-height compatibility | 0.30 | Closer x-height ratios pair better for mixed body text at similar sizes |
-| category contrast | 0.30 | Serif+sans (etc.) reads as intentional hierarchy; same-category pairings score lower |
+| category contrast | 0.50 | Serif+sans (etc.) reads as intentional hierarchy; same-category pairings score lower |
+| x-height compatibility | 0.20 | Closer x-height ratios pair better for mixed body text at similar sizes |
 | weight compatibility | 0.20 | Peaks at a moderate weight gap — enough for hierarchy, not so much it looks accidental |
-| stroke-contrast similarity | 0.20 | Two faces with similar stroke-contrast character tend to look coherent together |
+| stroke-contrast similarity | 0.10 | Two faces with similar stroke-contrast character tend to look coherent together |
 
-Weights were started equal and adjusted based on which separated the
-known-good/known-bad validation set most cleanly (see `validate.py` output).
+Weights started equal (0.25 each), which gave no clean separation on the
+validation set (margin 0.033). A grid search (see EVOLUTION_LOG.md and
+`validate.py`) found category contrast is by far the strongest signal, so
+it was weighted up. Current result: clean separation across 36 known-good/
+known-bad pairings spanning all five categories, margin 0.205.
+
+Note: `weight_compat` currently can't differentiate anything, since every
+downloaded font is Regular/400 — the database has no bold-weight data yet
+(a known gap, see PROGRESS.md).
 
 ## Repo structure
 
@@ -74,7 +92,22 @@ data/           SQLite metrics database
 src/            extraction, scoring, recommendation, and rendering code
 validation/     known-good / known-bad pairing reference set
 output/         rendered pairing sample images
+tests/          pytest suite covering extraction and scoring
+fontpair.py     CLI (recommend / score / render / list)
+app.py          minimal Flask web UI
+PROGRESS.md     current status and next steps (for picking work back up)
+EVOLUTION_LOG.md  log of the post-v1 self-improvement loop
 ```
+
+## Post-v1: self-evolution loop
+
+Once the six milestones above were complete, the project went through five
+rounds of self-directed improvement (assess a gap, propose it in
+`EVOLUTION_LOG.md`, implement, re-validate, commit). See that file for the
+full record — highlights: filled the monospace category gap, added the
+`fontpair` CLI, improved the renderer's multi-size preview and error
+handling, and grew the validation set from 16 to 36 pairings across all
+five categories.
 
 ## Non-goals (v1)
 
