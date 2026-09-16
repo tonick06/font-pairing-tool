@@ -3,11 +3,21 @@
     ["Playfair Display", "Source Sans 3"],
     ["Montserrat", "Merriweather"],
     ["Oswald", "Lora"],
-    ["Roboto Slab", "Open Sans"],
+    ["Zilla Slab", "Open Sans"],
     ["Abril Fatface", "Poppins"],
     ["Libre Baskerville", "Montserrat"],
     ["Bebas Neue", "Work Sans"],
-    ["Playfair Display", "Karla"]
+    ["Playfair Display", "Karla"],
+    ["Domine", "Rubik"],
+    ["Vollkorn", "Poppins"],
+    ["Fira Code", "Merriweather"],
+    ["JetBrains Mono", "Inter"],
+    ["Space Mono", "Playfair Display"],
+    ["Alegreya", "Montserrat"],
+    ["Cormorant", "Work Sans"],
+    ["Anton", "Nunito"],
+    ["Arvo", "Open Sans"],
+    ["Merriweather", "Manrope"]
   ],
   "bad_pairings": [
     ["Playfair Display", "Merriweather"],
@@ -15,8 +25,18 @@
     ["Roboto", "Open Sans"],
     ["Montserrat", "Poppins"],
     ["Oswald", "Bebas Neue"],
-    ["Anton", "Bungee"],
+    ["Anton", "Righteous"],
     ["EB Garamond", "Cormorant Garamond"],
-    ["Nunito", "Rubik"]
+    ["Nunito", "Rubik"],
+    ["Zilla Slab", "Arvo"],
+    ["Domine", "Vollkorn"],
+    ["JetBrains Mono", "Fira Code"],
+    ["Roboto Mono", "Space Mono"],
+    ["Alegreya", "Cardo"],
+    ["Karla", "Cabin"],
+    ["Poppins", "DM Sans"],
+    ["Merriweather", "Domine"],
+    ["Cormorant", "Cormorant Garamond"],
+    ["Inter", "Manrope"]
   ]
 }

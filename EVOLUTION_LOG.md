@@ -50,3 +50,16 @@ all — it would just crash with a raw Pillow/fontTools traceback. Adding a
 second, smaller heading size to the rendered sample, and a clear error
 message (naming the font and file) instead of a bare traceback when a font
 can't be rendered.
+
+---
+
+## Cycle 4: Expand the validation set
+
+The original validation set had 16 pairings (13 with both fonts actually in
+the DB) and never exercised monospace or slab-serif, which cycle 1 just
+added. A weight search tuned against that small, category-skewed set risks
+overfitting to it. Expanding known_pairings.json to ~30 pairings spanning
+all five categories (including monospace+serif and slab+sans combinations),
+then re-running validate.py to confirm the cycle-1 weights still separate
+cleanly against the larger set - and re-tuning only if they don't, per the
+guardrail against changing the scoring approach without checking first.

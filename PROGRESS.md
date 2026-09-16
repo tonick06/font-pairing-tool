@@ -46,8 +46,14 @@
   a clear "could not render X (path)" error instead of a bare traceback. Regenerated the demo batch in
   `output/` (Playfair Display, Oswald, JetBrains Mono x top 3) - all clean, all captions fully visible.
 
+- Cycle 4 (see EVOLUTION_LOG.md): expanded the validation set from 16 to 36 pairings (18 good / 18 bad),
+  now spanning all five categories including monospace and slab-serif for the first time. Re-ran validate.py
+  against the larger, more diverse set with the existing cycle-1 weights (no re-tuning needed): margin held
+  at 0.205 (good avg 0.624, bad avg 0.419), still a clean separation. This gives more confidence the weights
+  generalize rather than being overfit to the original small set.
+
 ## Next step
-- Continue the self-evolution loop (cycle 4 of 5) (assess -> propose in EVOLUTION_LOG.md -> implement -> validate ->
+- Continue the self-evolution loop (cycle 5 of 5, final cycle) (assess -> propose in EVOLUTION_LOG.md -> implement -> validate ->
   commit -> update this file). Do not change the core weighted-sum scoring philosophy without asking first.
   Known gaps for the loop to consider: no monospace fonts in the DB (download_fonts.py needs a GITHUB_TOKEN to
   get past the 60 req/hr unauthenticated rate limit, or a resumable re-run); weight_compat axis is currently
