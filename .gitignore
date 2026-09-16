@@ -1,0 +1,7 @@
+fonts/*.ttf
+fonts/*.otf
+data/*.db
+output/*.png
+__pycache__/
+*.pyc
+

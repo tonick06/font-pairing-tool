@@ -1,0 +1,133 @@
+"""Static family-name -> category lookup, keyed by Google Fonts metadata categories.
+
+fontTools cannot reliably derive serif/sans/slab/mono/display from glyph outlines,
+so this table is hand-curated from Google Fonts' own category tags for the fonts
+this project downloads. Extend it as new families are added to fonts/.
+"""
+
+FAMILY_CATEGORY = {
+    "Roboto": "sans-serif",
+    "Open Sans": "sans-serif",
+    "Lato": "sans-serif",
+    "Montserrat": "sans-serif",
+    "Source Sans Pro": "sans-serif",
+    "Source Sans 3": "sans-serif",
+    "Poppins": "sans-serif",
+    "Nunito": "sans-serif",
+    "Nunito Sans": "sans-serif",
+    "Raleway": "sans-serif",
+    "Inter": "sans-serif",
+    "Work Sans": "sans-serif",
+    "Rubik": "sans-serif",
+    "Mulish": "sans-serif",
+    "Karla": "sans-serif",
+    "Barlow": "sans-serif",
+    "Manrope": "sans-serif",
+    "Heebo": "sans-serif",
+    "DM Sans": "sans-serif",
+    "IBM Plex Sans": "sans-serif",
+    "Public Sans": "sans-serif",
+    "Noto Sans": "sans-serif",
+    "PT Sans": "sans-serif",
+    "Cabin": "sans-serif",
+    "Oxygen": "sans-serif",
+    "Jost": "sans-serif",
+    "Assistant": "sans-serif",
+    "Hind": "sans-serif",
+    "Titillium Web": "sans-serif",
+    "Archivo": "sans-serif",
+    "Figtree": "sans-serif",
+    "Outfit": "sans-serif",
+    "Space Grotesk": "sans-serif",
+    "Urbanist": "sans-serif",
+    "Sora": "sans-serif",
+    "Lexend": "sans-serif",
+
+    "Playfair Display": "serif",
+    "Merriweather": "serif",
+    "Lora": "serif",
+    "PT Serif": "serif",
+    "Noto Serif": "serif",
+    "Source Serif Pro": "serif",
+    "Source Serif 4": "serif",
+    "Crimson Text": "serif",
+    "Crimson Pro": "serif",
+    "EB Garamond": "serif",
+    "Libre Baskerville": "serif",
+    "Cormorant": "serif",
+    "Cormorant Garamond": "serif",
+    "Bitter": "serif",
+    "Vollkorn": "serif",
+    "Domine": "serif",
+    "Spectral": "serif",
+    "Cardo": "serif",
+    "Alegreya": "serif",
+    "IBM Plex Serif": "serif",
+    "Frank Ruhl Libre": "serif",
+    "Gelasio": "serif",
+    "Literata": "serif",
+    "Newsreader": "serif",
+
+    "Roboto Slab": "slab-serif",
+    "Josefin Slab": "slab-serif",
+    "Zilla Slab": "slab-serif",
+    "Arvo": "slab-serif",
+    "Rokkitt": "slab-serif",
+    "Aleo": "slab-serif",
+    "Bitter Slab": "slab-serif",
+    "Slabo 27px": "slab-serif",
+    "Roboto Slab Condensed": "slab-serif",
+
+    "Oswald": "display",
+    "Anton": "display",
+    "Bebas Neue": "display",
+    "Abril Fatface": "display",
+    "Lobster": "display",
+    "Pacifico": "display",
+    "Righteous": "display",
+    "Comfortaa": "display",
+    "Fjalla One": "display",
+    "Alfa Slab One": "display",
+    "Passion One": "display",
+    "Bungee": "display",
+    "Staatliches": "display",
+    "Baloo 2": "display",
+    "Yeseva One": "display",
+
+    "Roboto Mono": "monospace",
+    "Source Code Pro": "monospace",
+    "IBM Plex Mono": "monospace",
+    "JetBrains Mono": "monospace",
+    "Space Mono": "monospace",
+    "Inconsolata": "monospace",
+    "Fira Code": "monospace",
+    "Courier Prime": "monospace",
+    "PT Mono": "monospace",
+    "Noto Sans Mono": "monospace",
+
+    # Common system fonts, useful for local validation/spot-checks even though
+    # they aren't part of the Google Fonts download set.
+    "Georgia": "serif",
+    "Times New Roman": "serif",
+    "Cambria": "serif",
+    "Garamond": "serif",
+    "Book Antiqua": "serif",
+    "Arial": "sans-serif",
+    "Helvetica": "sans-serif",
+    "Calibri": "sans-serif",
+    "Verdana": "sans-serif",
+    "Tahoma": "sans-serif",
+    "Segoe UI": "sans-serif",
+    "Consolas": "monospace",
+    "Courier New": "monospace",
+}
+
+
+def category_for(family_name: str) -> str:
+    """Best-effort category lookup; falls back to 'unknown' rather than guessing."""
+    if family_name in FAMILY_CATEGORY:
+        return FAMILY_CATEGORY[family_name]
+    for known, cat in FAMILY_CATEGORY.items():
+        if known.lower() == family_name.lower():
+            return cat
+    return "unknown"
