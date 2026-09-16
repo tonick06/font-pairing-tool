@@ -113,6 +113,16 @@ for the latest cycle entries; this file's "Next step" line reflects whatever the
   value for them. Added a regression test (skipped if fonts/ isn't populated). No regression: validation
   margin unchanged (0.205, clean separation), 18/18 tests pass. Regenerated output/gallery.html.
 
+- Cycle 11 (see EVOLUTION_LOG.md): extended known_pairings.json from 36 to 44 pairings, adding fonts from
+  cycles 7/9 (Cinzel, Bree Serif, Quicksand, Dancing Script, Sanchez, Podkova, Caveat, Prata, Great Vibes,
+  Share Tech Mono, Sacramento, IBM Plex Mono) that had never been exercised by validation despite the DB
+  nearly quadrupling since cycle 4. One initial pick ("VT323 + Merriweather") broke clean separation
+  (scored 0.400, below the bad set's max) - correctly caught by validation, not a scoring bug: VT323's
+  x-height (0.4) is genuinely unusual. Swapped for "IBM Plex Mono + Merriweather" instead. Result: clean
+  separation restored with a slightly better margin (0.212 vs 0.205). Also audited ascender/descender
+  ratios (Pacifico's 1.303 is a deliberate script-font choice, not a bug, and isn't used in scoring anyway
+  - no fix needed). 18/18 tests pass.
+
 ## Next step (for a human, or a future loop)
 - `weight_compat` scoring axis is still dead (every font in the DB is Regular/400). Fixing it needs: (1) a
   second weight per family downloaded, (2) a way to disambiguate SQLite rows that share a `family_name`

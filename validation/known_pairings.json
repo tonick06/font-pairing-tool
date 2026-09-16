@@ -17,7 +17,15 @@
     ["Cormorant", "Work Sans"],
     ["Anton", "Nunito"],
     ["Arvo", "Open Sans"],
-    ["Merriweather", "Manrope"]
+    ["Merriweather", "Manrope"],
+    ["Cinzel", "Josefin Sans"],
+    ["Bree Serif", "Quicksand"],
+    ["Dancing Script", "Lato"],
+    ["IBM Plex Mono", "Merriweather"],
+    ["Sanchez", "Mulish"],
+    ["Podkova", "Heebo"],
+    ["Caveat", "Josefin Sans"],
+    ["Prata", "Quicksand"]
   ],
   "bad_pairings": [
     ["Playfair Display", "Merriweather"],
@@ -37,6 +45,12 @@
     ["Poppins", "DM Sans"],
     ["Merriweather", "Domine"],
     ["Cormorant", "Cormorant Garamond"],
-    ["Inter", "Manrope"]
+    ["Inter", "Manrope"],
+    ["Cinzel", "Prata"],
+    ["Dancing Script", "Great Vibes"],
+    ["VT323", "Share Tech Mono"],
+    ["Bree Serif", "Sanchez"],
+    ["Quicksand", "Mulish"],
+    ["Caveat", "Sacramento"]
   ]
 }

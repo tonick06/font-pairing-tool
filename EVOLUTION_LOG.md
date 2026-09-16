@@ -226,3 +226,34 @@ value is missing (0) - it never sanity-checks a present-but-wrong value.
 This is a real, evidenced bug (not a speculative one), so fixing it:
 add a plausible-range check and fall back to glyph bbox measurement when
 the OS/2-derived value is implausible, not just when it's absent.
+
+---
+
+## Cycle 11: Extend validation to the fonts added since cycle 4
+
+Also audited ascender_ratio/descender_ratio for anomalies (Pacifico's
+ascender_ratio is 1.303, ascender > unitsPerEm) but traced it to hhea and
+OS/2.sTypoAscender agreeing with each other at that value - a deliberate
+script-font metric choice (room for swash flourishes), not a bug, and
+these two fields aren't even inputs to any scoring axis (checked
+scoring.py: only x-height, category, weight, stroke-contrast are used).
+Not worth "fixing" a value that doesn't affect scoring and isn't actually
+wrong.
+
+Higher-value finding: known_pairings.json hasn't grown since cycle 4 (36
+pairings, ~26 distinct fonts), but the database has nearly quadrupled
+since then (36->136 fonts via cycles 7, 9, 10) - none of those newer
+slab-serif, display, monospace, or bulk-added fonts have ever been
+exercised by validation. Adding 8 more good and 6 more bad pairings using
+fonts from cycles 7/9 (Cinzel, Bree Serif, Quicksand, Dancing Script,
+VT323, Sanchez, Podkova, Caveat, Prata, Great Vibes, Share Tech Mono,
+Sacramento) to close that gap.
+
+First pass included "VT323 + Merriweather" as a good pairing, but it
+scored 0.400 - below the bad set's max (0.489), breaking clean
+separation. This was a weak pick on my part, not a scoring bug: VT323 is
+a distinctive blocky pixel font with an unusually low x-height (0.4),
+which the x-height axis correctly penalizes. Swapped it for "IBM Plex
+Mono + Merriweather" (x-heights 0.516 vs 0.5555, much closer), which
+restores clean separation with an even slightly better margin (0.212 vs
+the prior 0.205) across the larger 44-pairing set.
