@@ -73,19 +73,27 @@ cycle entries; this file's "Next step" line reflects whatever the most recent cy
   (`output/gallery.html`, ~700KB with base64-embedded images) showing the best pairings for one
   representative font per category. No server required — verified visually in a real browser via a
   throwaway `python -m http.server` preview. Added tests/test_gallery.py. Full suite: 14/14 passing.
+- The scheduled-task mechanism for running this loop unattended (every 30 min via a spawned session) does
+  not work in this environment: every spawned run froze after 2 tool calls with no recoverable progress.
+  The fix (adding permission rules to .claude/settings.local.json) is something the assistant is correctly
+  blocked from doing to itself. The recurring scheduled task has been disabled. Continuing instead via
+  self-scheduled wakeups inside one already-running, already-permitted session, chaining one cycle per
+  wakeup up to a hard stop time (~09:00 local on 2026-09-16).
+- Cycle 7 (see EVOLUTION_LOG.md): balanced the thin slab-serif (5) and display (7) categories by downloading
+  6 new families (Bevan, Trocchi, Kreon, Comfortaa*, Bungee*, Baloo 2*, Bangers, Monoton, Shrikhand —
+  *some already present) via src/download_more_categories.py, using the cycle-1 raw.githubusercontent.com
+  approach. DB grew 69 -> 79 fonts; slab-serif 5->9, display 7->13. No regression: validation margin
+  unchanged (0.205, clean separation), 14/14 tests pass. Regenerated output/gallery.html and updated README's
+  font count.
 
 ## Next step (for a human, or a future loop)
 - `weight_compat` scoring axis is still dead (every font in the DB is Regular/400). Fixing it needs: (1) a
   second weight per family downloaded, (2) a way to disambiguate SQLite rows that share a `family_name`
   across recommend.py/render.py/app.py's queries (currently all assume one row per family). Flagged and
-  deliberately deferred twice (cycles 2 and 4) as too large for a single cycle - do this as its own
+  deliberately deferred multiple times (cycles 2, 4) as too large for a single cycle - do this as its own
   standalone piece of work with its own validation pass.
 - category_lookup.py's serif/sans/slab/display/mono assignments are hand-curated from memory of Google
   Fonts' own tags, not cross-checked against their METADATA.pb files - worth an audit pass at some point.
-- PT Mono never resolved (all attempted raw.githubusercontent.com filenames 404'd) - low priority, one font. (assess -> propose in EVOLUTION_LOG.md -> implement -> validate ->
-  commit -> update this file). Do not change the core weighted-sum scoring philosophy without asking first.
-  Known gaps for the loop to consider: no monospace fonts in the DB (download_fonts.py needs a GITHUB_TOKEN to
-  get past the 60 req/hr unauthenticated rate limit, or a resumable re-run); weight_compat axis is currently
-  uninformative since every downloaded font is Regular/400 (no bold weights in the DB yet); validation set is
-  small (15 pairings, 13 matched fonts) and could be expanded for a more robust weight search; category_contrast
-  matrix and category_lookup.py table are hand-curated and could use a second pass for edge cases.
+- PT Mono never resolved (all attempted raw.githubusercontent.com filenames 404'd) - low priority, one font.
+- validation set is 36 pairings (18/18) across all 5 categories but doesn't yet include the cycle-7 fonts
+  (Bevan, Bungee, etc.) - could add a few more pairings using the newly balanced slab/display categories.

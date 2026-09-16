@@ -77,6 +77,9 @@ FAMILY_CATEGORY = {
     "Bitter Slab": "slab-serif",
     "Slabo 27px": "slab-serif",
     "Roboto Slab Condensed": "slab-serif",
+    "Bevan": "slab-serif",
+    "Trocchi": "slab-serif",
+    "Kreon": "slab-serif",
 
     "Oswald": "display",
     "Anton": "display",
@@ -93,6 +96,9 @@ FAMILY_CATEGORY = {
     "Staatliches": "display",
     "Baloo 2": "display",
     "Yeseva One": "display",
+    "Bangers": "display",
+    "Monoton": "display",
+    "Shrikhand": "display",
 
     "Roboto Mono": "monospace",
     "Source Code Pro": "monospace",

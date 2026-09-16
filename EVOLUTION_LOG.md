@@ -88,6 +88,16 @@ subcommands, including the error path for an unknown font). Full suite:
 
 ---
 
+Note on infrastructure: the user asked for the loop to keep running while they
+sleep. A separate scheduled-task mechanism was tried first (spawning fresh
+unattended sessions every 30 minutes) but every such session froze after
+2 tool calls with no recoverable progress, and the fix (adding permission
+rules to .claude/settings.local.json) is something the assistant is
+correctly blocked from doing to itself (a "self-modification" safety rule,
+not a bug). Switched instead to self-scheduled wakeups inside this one
+already-running, already-permitted session — proven to work repeatedly
+already tonight — chaining one cycle per wakeup up to a hard stop time.
+
 ## Final report (end of the 5-cycle loop)
 
 All six spec milestones were built, validated, and committed first
@@ -151,3 +161,17 @@ the best-scoring pairing for a representative font from each category,
 embedding the actual rendered sample images, with a bit of real design
 polish. No server required to view it; it's a better "here's what this
 tool produces" artifact than either the CLI output or the Flask app alone.
+
+---
+
+## Cycle 7: Balance the thin categories (slab-serif, display)
+
+Checked category counts in the database: sans-serif 26, serif 20,
+monospace 11, but slab-serif only 5 and display only 7 — a real,
+measured imbalance, not a guess. A category with only 5 fonts gives
+recommend_pairings very little to work with when someone's heading font
+is a slab serif, and skews category_contrast's real-world usefulness
+toward the two dominant categories. Downloading 5 more slab-serif and
+5 more display families (using the cycle-1 raw.githubusercontent.com
+approach, avoiding the api.github.com rate limit) to bring both categories
+closer to parity with the rest of the database.
