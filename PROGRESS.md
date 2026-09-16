@@ -135,6 +135,11 @@ for the latest cycle entries; this file's "Next step" line reflects whatever the
   (with/without a font selected) and /upload (success, missing files, disallowed extension). Full suite now
   23/23 passing. No scoring changes; validation margin unchanged at 0.212.
 
+- Cycle 14 (see EVOLUTION_LOG.md): added tests/test_render.py (render_pairing, the original Milestone 5
+  DB-backed renderer actually used by the gallery/app/CLI, had zero direct assertions before this) and
+  extended test_cli.py with render/compare subcommand smoke tests (previously only list/recommend/score
+  were covered). Full suite now 27/27 passing. No scoring changes; validation margin unchanged at 0.212.
+
 ## Next step (for a human, or a future loop)
 - `weight_compat` scoring axis is still dead (every font in the DB is Regular/400). Fixing it needs: (1) a
   second weight per family downloaded, (2) a way to disambiguate SQLite rows that share a `family_name`

@@ -41,3 +41,17 @@ def test_score_known_pair():
     result = _run("score", "Playfair Display", "Source Sans 3")
     assert result.returncode == 0
     assert "Playfair Display + Source Sans 3" in result.stdout
+
+
+def test_render_creates_image(tmp_path):
+    out_dir = str(tmp_path)
+    result = _run("render", "Playfair Display", "Source Sans 3", "--out", out_dir)
+    assert result.returncode == 0
+    assert "Rendered" in result.stdout
+    assert any(f.endswith(".png") for f in os.listdir(out_dir))
+
+
+def test_compare_two_files():
+    result = _run("compare", "C:/Windows/Fonts/georgia.ttf", "C:/Windows/Fonts/arial.ttf")
+    assert result.returncode == 0
+    assert "Georgia + Arial" in result.stdout

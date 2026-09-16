@@ -286,3 +286,18 @@ tests/test_app.py covering both routes (index with/without a font
 selected, upload success, upload with missing files, upload with a
 disallowed extension) using Flask's test client, the same approach
 already proven out in cycle 8.
+
+---
+
+## Cycle 14: Add test coverage for render.render_pairing (currently untested)
+
+Checked what's actually asserted vs. just manually exercised: render.py's
+render_font_files (the file-based path from cycle 8) has direct tests in
+test_compare_files.py, but render_pairing - the original Milestone 5
+database-backed function, and the one the gallery, the Flask app, and
+`fontpair.py render`/recommend --render-style flows all actually use in
+practice - has never had a direct assertion, only ad-hoc manual checks
+during earlier cycles. Same gap for the CLI's `render` and `compare`
+subcommands: test_cli.py only covers list/recommend/score. Adding direct
+tests for render_pairing (creates a file, includes both names in the
+output path) and CLI smoke tests for `render`/`compare`.
