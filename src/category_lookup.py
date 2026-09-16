@@ -78,7 +78,7 @@ FAMILY_CATEGORY = {
     "Slabo 27px": "slab-serif",
     "Roboto Slab Condensed": "slab-serif",
     "Bevan": "slab-serif",
-    "Trocchi": "slab-serif",
+    "Trocchi": "serif",  # cycle 16: old-style serif, not a true slab (see EVOLUTION_LOG.md)
     "Kreon": "slab-serif",
 
     "Oswald": "display",
@@ -174,9 +174,9 @@ FAMILY_CATEGORY = {
     # Cycle 9 additions (slab-serif)
     "Bree Serif": "slab-serif",
     "Podkova": "slab-serif",
-    "Rosarivo": "slab-serif",
+    "Rosarivo": "serif",  # cycle 16: old-style serif, not a true slab (see EVOLUTION_LOG.md)
     "Sanchez": "slab-serif",
-    "Trirong": "slab-serif",
+    "Trirong": "serif",  # cycle 16: old-style serif, not a true slab (see EVOLUTION_LOG.md)
 
     # Cycle 9 additions (display)
     "Amatic SC": "display",

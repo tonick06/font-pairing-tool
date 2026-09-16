@@ -149,6 +149,16 @@ for the latest cycle entries; this file's "Next step" line reflects whatever the
   bytes) was deliberately left alone - lower value to touch a one-time historical script for a bigger diff.
   27/27 tests pass; validation margin unchanged at 0.212.
 
+- Cycle 16 (see EVOLUTION_LOG.md): finally did the category_lookup.py audit flagged since cycle 5. Fetched
+  real METADATA.pb category tags from google/fonts for the 9 fonts this project tagged "slab-serif" -
+  learned Google's own taxonomy has no slab-serif category at all (just SERIF/SANS_SERIF/DISPLAY/
+  HANDWRITING/MONOSPACE), so there's no external ground truth for that sub-genre distinction. Checked
+  against our own stroke_contrast data instead: true slabs cluster 0.61-0.94, but Trirong (0.405), Rosarivo
+  (0.524), and Trocchi (0.54) read as much higher-contrast old-style serifs. Recategorized all three to
+  "serif". Category counts now: sans-serif 48, serif 32 (was 29), display 28, monospace 17, slab-serif 11
+  (was 14, now a cleaner cluster with no outliers). No regression: 27/27 tests pass, validation margin
+  unchanged at 0.212 (none of the 3 fonts were in validation pairs). Regenerated output/gallery.html.
+
 ## Next step (for a human, or a future loop)
 - `weight_compat` scoring axis is still dead (every font in the DB is Regular/400). Fixing it needs: (1) a
   second weight per family downloaded, (2) a way to disambiguate SQLite rows that share a `family_name`

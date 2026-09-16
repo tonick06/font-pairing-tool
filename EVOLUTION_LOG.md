@@ -317,3 +317,22 @@ used with a different call-site contract - not touching that one, since
 merging it would require changing its surrounding code too, for a script
 that only ever ran once historically.) Extracting the three identical
 copies into a new src/font_download_utils.py and importing from it.
+
+---
+
+## Cycle 16: Fix 3 miscategorized "slab-serif" fonts using our own data
+
+Finally did the category_lookup.py audit flagged since cycle 5. Google
+Fonts' own taxonomy has no "slab-serif" category at all (just SERIF,
+SANS_SERIF, DISPLAY, HANDWRITING, MONOSPACE - confirmed by fetching
+METADATA.pb for the 9 fonts this project tagged slab-serif in cycles 7/9,
+all of which Google tags plain SERIF) - "slab-serif" is a sub-genre
+distinction this project invented, which is reasonable given the spec
+asked for it, but means there's no external ground truth to check it
+against. So checked it against our own measured data instead: real slab
+serifs have low stroke contrast (thick, uniform strokes), and the
+project's slab-serif fonts cluster at 0.61-0.94 stroke_contrast - except
+three outliers reading much higher-contrast: Trirong (0.405), Rosarivo
+(0.524), Trocchi (0.54). This matches typographic knowledge too - all
+three are old-style/transitional serif designs with bracketed, tapered
+serifs, not blocky slabs. Recategorizing them to "serif".
