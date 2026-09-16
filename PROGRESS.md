@@ -34,8 +34,14 @@
   (serif, sans-serif, slab-serif, display, monospace). No regression: validation margin unchanged (0.213,
   clean separation), 8/8 tests still pass. Spot-checked JetBrains Mono -> plausible sans-serif pairings.
 
+- Cycle 2 (see EVOLUTION_LOG.md): checked whether weight_class/width_class could be made useful (both are
+  constant across the DB, all fonts Regular/Normal — a real fix needs a second weight per family plus
+  disambiguating rows sharing a family_name, which is a bigger schema change than fits one cycle; flagged
+  below for a future cycle instead). Added `fontpair.py`, a CLI wrapping recommend/score/render/list so the
+  tool is usable without editing scripts by hand. Smoke-tested all four subcommands.
+
 ## Next step
-- Continue the self-evolution loop (cycle 2 of 5) (assess -> propose in EVOLUTION_LOG.md -> implement -> validate ->
+- Continue the self-evolution loop (cycle 3 of 5) (assess -> propose in EVOLUTION_LOG.md -> implement -> validate ->
   commit -> update this file). Do not change the core weighted-sum scoring philosophy without asking first.
   Known gaps for the loop to consider: no monospace fonts in the DB (download_fonts.py needs a GITHUB_TOKEN to
   get past the 60 req/hr unauthenticated rate limit, or a resumable re-run); weight_compat axis is currently

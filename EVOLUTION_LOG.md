@@ -22,3 +22,18 @@ raw.githubusercontent.com (which isn't subject to the api.github.com
 60 req/hr listing limit that stalled the first run), probing a short list
 of known static/variable filename patterns per family instead of listing
 each folder.
+
+---
+
+## Cycle 2: Add a proper CLI
+
+Checked whether weight_class/width_class could be made useful next (they're
+currently constant across the whole DB — every downloaded font is Regular/
+Normal — so weight_compat never actually differentiates anything). Fixing
+that means downloading a second weight per family and disambiguating rows
+that share a family_name throughout recommend.py/render.py/app.py — a real
+schema change with meaningful blast radius, not a single-commit-sized fix.
+Deferring it (flagged in PROGRESS.md for a future cycle) in favor of a
+contained, self-contained improvement this cycle: a `fontpair` CLI so the
+tool is usable without editing scripts by hand, per the user's suggested
+candidate list.
