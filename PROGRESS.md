@@ -159,6 +159,15 @@ for the latest cycle entries; this file's "Next step" line reflects whatever the
   (was 14, now a cleaner cluster with no outliers). No regression: 27/27 tests pass, validation margin
   unchanged at 0.212 (none of the 3 fonts were in validation pairs). Regenerated output/gallery.html.
 
+- Cycle 17 (see EVOLUTION_LOG.md): added tests/test_category_lookup.py (5 tests) - category_lookup.py had
+  zero direct test coverage despite having had two real bugs fixed in it (cycle 16) and 182 hand-curated
+  entries with case-insensitive fallback logic. Covers exact match, case-insensitive match, unknown-family
+  fallback, slab-serif examples, and a regression check that cycle 16's recategorization stuck. Also
+  confirmed the cycle 16 fix holds up: Trirong/Rosarivo/Trocchi now sit comfortably within the serif cluster
+  (0.4-0.54 stroke contrast), and checked the display category for similar issues - found none worth acting
+  on (its wide stroke-contrast spread is expected diversity, not a red flag, since it deliberately mixes
+  script/handwriting and geometric display styles). Full suite now 32/32 passing.
+
 ## Next step (for a human, or a future loop)
 - `weight_compat` scoring axis is still dead (every font in the DB is Regular/400). Fixing it needs: (1) a
   second weight per family downloaded, (2) a way to disambiguate SQLite rows that share a `family_name`

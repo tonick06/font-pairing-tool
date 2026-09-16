@@ -336,3 +336,25 @@ three outliers reading much higher-contrast: Trirong (0.405), Rosarivo
 (0.524), Trocchi (0.54). This matches typographic knowledge too - all
 three are old-style/transitional serif designs with bracketed, tapered
 serifs, not blocky slabs. Recategorizing them to "serif".
+
+Also cross-checked the recategorized fonts against the rest of the serif
+cluster (all now sit comfortably at 0.4-0.54, no longer outliers) and
+checked the display category for similar internal inconsistency - found
+none worth acting on: display's stroke_contrast spread (0.098-1.0) is
+expected given it deliberately mixes script/handwriting and geometric
+display styles, unlike slab-serif which is specifically defined by
+uniform low contrast. Forcing a "fix" on legitimate diversity would be
+manufacturing a problem, not finding one.
+
+---
+
+## Cycle 17: Add test coverage for category_lookup.py (currently zero)
+
+category_lookup.py has had two real bugs found and fixed in it already
+(cycle 16's slab-serif miscategorizations), has 182 hand-curated entries,
+and implements non-trivial fallback logic (case-insensitive match,
+"unknown" default) - yet has zero direct test coverage; it's only ever
+exercised indirectly through extract_metrics tests. Adding
+tests/test_category_lookup.py: exact match, case-insensitive match,
+unknown-family fallback, and a few known-correct entries (including a
+regression check that the cycle 16 fix stuck).
