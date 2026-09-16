@@ -14,6 +14,7 @@ from recommend import get_font, score_pairing
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "output")
 
 HEADING_TEXT = "Design with Intention"
+SUBHEADING_TEXT = "A closer look at hierarchy"
 BODY_TEXT = (
     "Typography is the craft of giving language a visual form. A well-chosen "
     "pairing creates hierarchy without shouting, guiding the reader's eye from "
@@ -25,6 +26,21 @@ MARGIN = 60
 BG_COLOR = (255, 255, 255)
 TEXT_COLOR = (20, 20, 20)
 META_COLOR = (120, 120, 120)
+
+HEADING_SIZE = 48
+SUBHEADING_SIZE = 26
+BODY_SIZE = 20
+
+
+def _load_font(filepath: str, family_name: str, size: int) -> ImageFont.FreeTypeFont:
+    """Load a font at a given size, raising a clear error naming the font and
+    file instead of letting a bare Pillow/fontTools traceback surface."""
+    try:
+        return ImageFont.truetype(filepath, size)
+    except Exception as e:
+        raise ValueError(
+            f"Could not render '{family_name}' ({filepath}) at size {size}: {e}"
+        ) from e
 
 
 def _wrap_text(draw, text, font, max_width):
@@ -54,10 +70,10 @@ def render_pairing(font_a_name: str, font_b_name: str, out_dir: str = OUTPUT_DIR
 
     score_info = score_pairing(font_a_name, font_b_name, **(kwargs if db_path else {}))
 
-    heading_font = ImageFont.truetype(font_a["filepath"], 48)
-    body_font = ImageFont.truetype(font_b["filepath"], 20)
-    meta_font_path = font_b["filepath"]
-    meta_font = ImageFont.truetype(meta_font_path, 14)
+    heading_font = _load_font(font_a["filepath"], font_a["family_name"], HEADING_SIZE)
+    subheading_font = _load_font(font_a["filepath"], font_a["family_name"], SUBHEADING_SIZE)
+    body_font = _load_font(font_b["filepath"], font_b["family_name"], BODY_SIZE)
+    meta_font = _load_font(font_b["filepath"], font_b["family_name"], 14)
 
     scratch_img = Image.new("RGB", (10, 10))
     draw = ImageDraw.Draw(scratch_img)
@@ -65,18 +81,29 @@ def render_pairing(font_a_name: str, font_b_name: str, out_dir: str = OUTPUT_DIR
     content_width = WIDTH - MARGIN * 2
     body_lines = _wrap_text(draw, BODY_TEXT, body_font, content_width)
 
+    meta_line1 = f"Heading: {font_a['family_name']}   |   Body: {font_b['family_name']}"
+    meta_line2 = f"Compatibility score: {score_info['score']:.2f}   —   {score_info['explanation']}"
+    meta_line2_wrapped = _wrap_text(draw, meta_line2, meta_font, content_width)
+
     heading_h = 70
+    subheading_h = 40
     body_line_h = 30
     body_h = body_line_h * len(body_lines)
-    meta_h = 50
-    height = MARGIN + heading_h + 20 + body_h + 30 + meta_h + MARGIN
+    meta_line_h = 20
+    meta_h = meta_line_h * (1 + len(meta_line2_wrapped))
+    height = MARGIN + heading_h + subheading_h + 10 + body_h + 30 + meta_h + MARGIN
 
     img = Image.new("RGB", (WIDTH, height), BG_COLOR)
     draw = ImageDraw.Draw(img)
 
     y = MARGIN
     draw.text((MARGIN, y), HEADING_TEXT, font=heading_font, fill=TEXT_COLOR)
-    y += heading_h + 20
+    y += heading_h
+
+    # A second, smaller heading size shows how the pairing holds up at a
+    # scale closer to a section heading rather than only a hero headline.
+    draw.text((MARGIN, y), SUBHEADING_TEXT, font=subheading_font, fill=TEXT_COLOR)
+    y += subheading_h + 10
 
     for line in body_lines:
         draw.text((MARGIN, y), line, font=body_font, fill=TEXT_COLOR)
@@ -85,10 +112,11 @@ def render_pairing(font_a_name: str, font_b_name: str, out_dir: str = OUTPUT_DIR
     y += 20
     draw.line((MARGIN, y, WIDTH - MARGIN, y), fill=(220, 220, 220), width=1)
     y += 15
-    meta_line1 = f"Heading: {font_a['family_name']}   |   Body: {font_b['family_name']}"
-    meta_line2 = f"Compatibility score: {score_info['score']:.2f}   —   {score_info['explanation']}"
     draw.text((MARGIN, y), meta_line1, font=meta_font, fill=META_COLOR)
-    draw.text((MARGIN, y + 20), meta_line2, font=meta_font, fill=META_COLOR)
+    y += meta_line_h
+    for line in meta_line2_wrapped:
+        draw.text((MARGIN, y), line, font=meta_font, fill=META_COLOR)
+        y += meta_line_h
 
     os.makedirs(out_dir, exist_ok=True)
     safe_a = re.sub(r"[^a-zA-Z0-9]+", "", font_a_name).lower()

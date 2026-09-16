@@ -37,3 +37,16 @@ Deferring it (flagged in PROGRESS.md for a future cycle) in favor of a
 contained, self-contained improvement this cycle: a `fontpair` CLI so the
 tool is usable without editing scripts by hand, per the user's suggested
 candidate list.
+
+---
+
+## Cycle 3: Improve the visual renderer
+
+The Milestone 5 renderer only ever shows the heading at one size (48px),
+which doesn't demonstrate how a pairing holds up across the sizes it'd
+actually be used at (a large hero headline vs. a smaller section heading).
+It also has no explicit handling if a font file fails to load or render at
+all — it would just crash with a raw Pillow/fontTools traceback. Adding a
+second, smaller heading size to the rendered sample, and a clear error
+message (naming the font and file) instead of a bare traceback when a font
+can't be rendered.
